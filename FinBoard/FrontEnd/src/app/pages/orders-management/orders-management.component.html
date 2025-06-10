@@ -1,0 +1,223 @@
+<div class="orders-management">
+  <!-- Header -->
+  <div class="page-header">
+    <h1 class="page-title">
+      <i class="fas fa-list-alt"></i>
+      Gestione Ordini
+    </h1>
+    <p class="page-subtitle">Ricerca e gestisci i tuoi ordini di trading</p>
+  </div>
+
+  <!-- Filtri -->
+  <div class="filters-section">
+    <div class="filters-header">
+      <h2 class="filters-title">
+        <i class="fas fa-filter"></i>
+        Filtri di Ricerca
+      </h2>
+      <button class="clear-filters-btn" (click)="clearFilters()" type="button">
+        <i class="fas fa-times"></i>
+        Pulisci Filtri
+      </button>
+    </div>
+
+    <form class="filters-form">
+      <div class="filters-grid">
+        <!-- ID -->
+        <div class="filter-group">
+          <label for="id">ID Ordine</label>
+          <input
+            type="text"
+            id="id"
+            [(ngModel)]="filters.id"
+            name="id"
+            placeholder="Inserisci ID..."
+            class="form-input">
+        </div>
+
+        <!-- ISIN -->
+        <div class="filter-group">
+          <label for="isin">ISIN</label>
+          <input
+            type="text"
+            id="isin"
+            [(ngModel)]="filters.isin"
+            name="isin"
+            placeholder="Inserisci ISIN..."
+            class="form-input">
+        </div>
+
+        <!-- Nominale -->
+        <div class="filter-group">
+          <label for="nominale">Nominale</label>
+          <input
+            type="number"
+            id="nominale"
+            [(ngModel)]="filters.nominale"
+            name="nominale"
+            placeholder="Importo..."
+            class="form-input">
+        </div>
+
+        <!-- Portafoglio -->
+        <div class="filter-group">
+          <label for="portafoglio">Portafoglio</label>
+          <select
+            id="portafoglio"
+            [(ngModel)]="filters.portafoglio"
+            name="portafoglio"
+            class="form-select">
+            <option value="">Tutti i portafogli</option>
+            <option *ngFor="let portfolio of portfolioOptions" [value]="portfolio">
+              {{ portfolio }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Data Operazione -->
+        <div class="filter-group">
+          <label for="dataOperazione">Data Operazione</label>
+          <input
+            type="date"
+            id="dataOperazione"
+            [(ngModel)]="filters.dataOperazione"
+            name="dataOperazione"
+            class="form-input">
+        </div>
+
+        <!-- Data Valuta -->
+        <div class="filter-group">
+          <label for="dataValuta">Data Valuta</label>
+          <input
+            type="date"
+            id="dataValuta"
+            [(ngModel)]="filters.dataValuta"
+            name="dataValuta"
+            class="form-input">
+        </div>
+
+        <!-- Stato -->
+        <div class="filter-group">
+          <label for="stato">Stato</label>
+          <select
+            id="stato"
+            [(ngModel)]="filters.stato"
+            name="stato"
+            class="form-select">
+            <option value="">Tutti gli stati</option>
+            <option *ngFor="let stato of statoOptions" [value]="stato">
+              {{ stato }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Divisa -->
+        <div class="filter-group">
+          <label for="divisa">Divisa</label>
+          <select
+            id="divisa"
+            [(ngModel)]="filters.divisa"
+            name="divisa"
+            class="form-select">
+            <option value="">Tutte le divise</option>
+            <option *ngFor="let divisa of divisaOptions" [value]="divisa">
+              {{ divisa }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Bottone Cerca -->
+      <div class="search-button-container">
+        <button
+          type="button"
+          class="search-btn"
+          (click)="searchOrders()"
+          [disabled]="isLoading">
+          <i class="fas fa-search" *ngIf="!isLoading"></i>
+          <i class="fas fa-spinner fa-spin" *ngIf="isLoading"></i>
+          {{ isLoading ? 'Ricerca in corso...' : 'Cerca Ordini' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Risultati -->
+  <div class="results-section">
+    <div class="results-header">
+      <h2 class="results-title">
+        <i class="fas fa-table"></i>
+        Risultati della Ricerca
+        <span class="results-count">({{ filteredOrders.length }} ordini trovati)</span>
+      </h2>
+      <button class="new-order-btn" (click)="newOrder()">
+        <i class="fas fa-plus"></i>
+        Nuovo Ordine
+      </button>
+    </div>
+
+    <!-- Tabella Ordini -->
+    <div class="table-container">
+      <table class="orders-table" *ngIf="filteredOrders.length > 0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>ISIN</th>
+            <th>Nominale</th>
+            <th>Portafoglio</th>
+            <th>Data Operazione</th>
+            <th>Data Valuta</th>
+            <th>Stato</th>
+            <th>Divisa</th>
+            <th>Azioni</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of filteredOrders" class="order-row">
+            <td class="order-id">{{ order.id }}</td>
+            <td class="order-isin">{{ order.isin }}</td>
+            <td class="order-nominale">{{ formatCurrency(order.nominale, order.divisa) }}</td>
+            <td class="order-portfolio">{{ order.portafoglio }}</td>
+            <td class="order-date">{{ formatDate(order.dataOperazione) }}</td>
+            <td class="order-date">{{ formatDate(order.dataValuta) }}</td>
+            <td class="order-status">
+              <span class="status-badge" [class]="getStatusClass(order.stato)">
+                {{ order.stato }}
+              </span>
+            </td>
+            <td class="order-currency">{{ order.divisa }}</td>
+            <td class="order-actions">
+              <button class="action-btn view-btn" (click)="viewOrder(order)" title="Visualizza">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="action-btn edit-btn" (click)="editOrder(order)" title="Modifica">
+                <i class="fas fa-edit"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Messaggio quando non ci sono risultati -->
+      <div class="no-results" *ngIf="filteredOrders.length === 0 && !isLoading">
+        <div class="no-results-icon">
+          <i class="fas fa-search"></i>
+        </div>
+        <h3>Nessun ordine trovato</h3>
+        <p>Prova a modificare i filtri di ricerca o a crearne uno nuovo.</p>
+        <button class="new-order-btn" (click)="newOrder()">
+          <i class="fas fa-plus"></i>
+          Crea Nuovo Ordine
+        </button>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading-container" *ngIf="isLoading">
+        <div class="loading-spinner">
+          <i class="fas fa-spinner fa-spin"></i>
+        </div>
+        <p>Ricerca in corso...</p>
+      </div>
+    </div>
+  </div>
+</div>

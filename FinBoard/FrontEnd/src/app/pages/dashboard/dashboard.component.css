@@ -1,0 +1,17 @@
+.dashboard-content {
+  margin-left: 60px; 
+  transition: margin-left 0.3s ease;
+  min-height: 100vh;
+}
+
+
+:host-context(.sidebar-expanded) .dashboard-content,
+body.sidebar-expanded .dashboard-content {
+  margin-left: 270px;
+}
+
+@media (max-width: 768px) {
+  .dashboard-content {
+    margin-left: 0 !important;
+  }
+}

@@ -1,0 +1,69 @@
+<div [class]="sidebarClass" 
+     (mouseenter)="onMouseEnter()" 
+     (mouseleave)="onMouseLeave()">
+  
+  <!-- Header della sidebar -->
+  <div class="sidebar-header">
+    <div class="logo-container">
+      <div class="logo-icon">
+        <i class="fas fa-chart-pie"></i>
+      </div>
+      <div class="logo-text" *ngIf="isExpanded">
+        <span class="logo-title">finBoard</span>
+      </div>
+    </div>
+    
+    <!-- Pulsante pin -->
+    <button class="pin-button" 
+            (click)="togglePin()" 
+            *ngIf="isExpanded"
+            [class.active]="isPinned"
+            title="{{ isPinned ? 'Rilascia sidebar' : 'Fissa sidebar' }}">
+      <i class="fas fa-thumbtack" [class.rotated]="!isPinned"></i>
+    </button>
+  </div>
+<!-- Menu principale -->
+<nav class="sidebar-nav">
+  <ul class="nav-list">
+    <li class="nav-item" 
+        *ngFor="let item of menuItems" 
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }">
+      <a class="nav-link" 
+         [routerLink]="item.route" 
+         (click)="selectMenuItem(item)">
+        <div class="nav-icon">
+          <i [class]="item.icon"></i>
+          <span class="badge" 
+                *ngIf="item.badge && item.badge > 0"
+                [class.expanded]="isExpanded">
+            {{ item.badge }}
+          </span>
+        </div>
+        <span class="nav-label" *ngIf="isExpanded">
+          {{ item.label }}
+        </span>
+      </a>
+    </li>
+  </ul>
+</nav>
+
+
+  <!-- Footer della sidebar -->
+  <div class="sidebar-footer" *ngIf="isExpanded">
+    <div class="user-info">
+      <div class="user-avatar">
+        <i class="fas fa-user"></i>
+      </div>
+      <div class="user-details">
+        <span class="user-name">Antonio Greco</span>
+        <span class="user-email">Antonio</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Indicatore di espansione per la versione collassata -->
+  <div class="expand-indicator" *ngIf="!isExpanded && !isHovered">
+    <i class="fas fa-chevron-right"></i>
+  </div>
+</div>
