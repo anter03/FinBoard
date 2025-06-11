@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; // <--- Questo importa ngModel
+import { OrderFormComponent } from '../../components/order-form/order-form.component'; // <--- Questo importa ngModel
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { Inject } from '@angular/core'
+
 
 
 export interface Order {
@@ -12,6 +16,7 @@ export interface Order {
   dataValuta: Date;
   stato: string;
   divisa: string;
+  tipo:string;
 }
 
 export interface OrderFilters {
@@ -28,7 +33,7 @@ export interface OrderFilters {
 @Component({
   selector: 'app-orders-management',
   templateUrl: './orders-management.component.html',
-  imports: [CommonModule,FormsModule],
+  imports: [CommonModule,FormsModule,MatDialogModule],
   styleUrls: ['./orders-management.component.css']
 })
 export class OrdersManagementComponent implements OnInit {
@@ -38,6 +43,7 @@ export class OrdersManagementComponent implements OnInit {
       id: 'ORD001',
       isin: 'IT0003128367',
       nominale: 10000,
+      tipo: 'acq',
       portafoglio: 'Portfolio A',
       dataOperazione: new Date('2024-06-01'),
       dataValuta: new Date('2024-06-03'),
@@ -48,6 +54,7 @@ export class OrdersManagementComponent implements OnInit {
       id: 'ORD002',
       isin: 'US0378331005',
       nominale: 5000,
+      tipo: 'ven',
       portafoglio: 'Portfolio B',
       dataOperazione: new Date('2024-06-02'),
       dataValuta: new Date('2024-06-04'),
@@ -58,6 +65,7 @@ export class OrdersManagementComponent implements OnInit {
       id: 'ORD003',
       isin: 'DE0007164600',
       nominale: 15000,
+        tipo: 'acq',
       portafoglio: 'Portfolio A',
       dataOperazione: new Date('2024-06-03'),
       dataValuta: new Date('2024-06-05'),
@@ -68,6 +76,7 @@ export class OrdersManagementComponent implements OnInit {
       id: 'ORD004',
       isin: 'GB0009252882',
       nominale: 8000,
+        tipo: 'acq',
       portafoglio: 'Portfolio C',
       dataOperazione: new Date('2024-06-04'),
       dataValuta: new Date('2024-06-06'),
@@ -78,6 +87,7 @@ export class OrdersManagementComponent implements OnInit {
       id: 'ORD005',
       isin: 'FR0000120321',
       nominale: 12000,
+        tipo: 'acq',
       portafoglio: 'Portfolio B',
       dataOperazione: new Date('2024-06-05'),
       dataValuta: new Date('2024-06-07'),
@@ -87,6 +97,7 @@ export class OrdersManagementComponent implements OnInit {
   ];
 
   filteredOrders: Order[] = [];
+  
   isLoading: boolean = false;
   
   filters: OrderFilters = {
@@ -104,7 +115,7 @@ export class OrdersManagementComponent implements OnInit {
   statoOptions = ['Eseguito', 'Pending', 'Annullato'];
   divisaOptions = ['EUR', 'USD', 'GBP', 'JPY'];
 
-  constructor() { }
+  constructor(private dialog: MatDialog) { }
 
   ngOnInit(): void {
     this.filteredOrders = [...this.orders];
@@ -188,10 +199,30 @@ export class OrdersManagementComponent implements OnInit {
     this.filteredOrders = [...this.orders];
   }
 
-  newOrder(): void {
-    console.log('Creazione nuovo ordine');
-    // Qui implementerai la logica per aprire il form di creazione
-  }
+newOrder(): void {
+  console.log('Creazione nuovo ordine');
+
+  const dialogRef = this.dialog.open(OrderFormComponent, {
+    width: '1200px',
+    maxWidth: '90vw',
+    maxHeight: '90vh',
+    disableClose: true,
+    panelClass: 'custom-dialog-container', 
+    data: {
+      order: null,
+      isEditMode: false
+    }
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+    if (result) {
+      console.log('Ordine salvato', result);
+      // eventualmente aggiorna lista ordini
+    } else {
+      console.log('Modale chiusa senza salvare');
+    }
+  });
+}
 
   viewOrder(order: Order): void {
     console.log('Visualizza ordine:', order);

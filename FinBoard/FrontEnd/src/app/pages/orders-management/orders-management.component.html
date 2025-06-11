@@ -164,6 +164,7 @@
             <th>ID</th>
             <th>ISIN</th>
             <th>Nominale</th>
+            <th>Tipo</th>
             <th>Portafoglio</th>
             <th>Data Operazione</th>
             <th>Data Valuta</th>
@@ -177,6 +178,7 @@
             <td class="order-id">{{ order.id }}</td>
             <td class="order-isin">{{ order.isin }}</td>
             <td class="order-nominale">{{ formatCurrency(order.nominale, order.divisa) }}</td>
+            <td class="order-nominale">{{ order.tipo }}</td>
             <td class="order-portfolio">{{ order.portafoglio }}</td>
             <td class="order-date">{{ formatDate(order.dataOperazione) }}</td>
             <td class="order-date">{{ formatDate(order.dataValuta) }}</td>
