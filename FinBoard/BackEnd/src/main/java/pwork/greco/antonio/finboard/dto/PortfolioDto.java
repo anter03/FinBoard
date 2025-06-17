@@ -8,12 +8,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserDto {
+public class PortfolioDto {
     private Long id;
+    private Long userId;
     private Long companyId;
-    private String username;
-    private String passwordHash;
-    private String email;
+    private String name;
     private LocalDateTime createdAt;
     private Boolean deleted;
 }
