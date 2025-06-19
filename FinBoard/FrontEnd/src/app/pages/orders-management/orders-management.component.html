@@ -62,7 +62,7 @@
         <!-- Portafoglio -->
         <div class="filter-group">
           <label for="portafoglio">Portafoglio</label>
-           <select>
+           <select class="form-select" >
             <option *ngFor="let portfolio of portfolioOptions" [value]="portfolio.id">
               {{ portfolio.name }}
             </option>
