@@ -4,7 +4,9 @@ import { FormsModule } from '@angular/forms'; // <--- Questo importa ngModel
 import { OrderFormComponent } from '../../components/order-form/order-form.component'; // <--- Questo importa ngModel
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Inject } from '@angular/core'
-
+import { PortfolioService } from '../../services/portfolio.service';
+import { Portfolio } from '../../models/Portfolio';
+import { HttpClientModule } from '@angular/common/http';
 
 
 export interface Order {
@@ -33,7 +35,7 @@ export interface OrderFilters {
 @Component({
   selector: 'app-orders-management',
   templateUrl: './orders-management.component.html',
-  imports: [CommonModule,FormsModule,MatDialogModule],
+  imports: [CommonModule,FormsModule,MatDialogModule,HttpClientModule],
   styleUrls: ['./orders-management.component.css']
 })
 export class OrdersManagementComponent implements OnInit {
@@ -111,14 +113,22 @@ export class OrdersManagementComponent implements OnInit {
     divisa: ''
   };
 
-  portfolioOptions = ['Portfolio A', 'Portfolio B', 'Portfolio C'];
+  portfolioOptions: Portfolio[] = [];
   statoOptions = ['Eseguito', 'Pending', 'Annullato'];
   divisaOptions = ['EUR', 'USD', 'GBP', 'JPY'];
 
-  constructor(private dialog: MatDialog) { }
+  constructor(private dialog: MatDialog,private portfolioService: PortfolioService) { }
 
   ngOnInit(): void {
     this.filteredOrders = [...this.orders];
+    this.portfolioService.getAll().subscribe({
+      next: (data) => {
+        this.portfolioOptions = data;
+      },
+      error: (err) => {
+        console.error('Errore nel caricamento dei portfolio:', err);
+      },
+    });
   }
 
   searchOrders(): void {
