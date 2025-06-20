@@ -80,7 +80,7 @@ public class UserService {
                 .build();
     }
 
-    private User toEntity(UserDto dto) {
+    public User toEntity(UserDto dto) {
         return User.builder()
                 .id(dto.getId())
                 .companyId(dto.getCompanyId())

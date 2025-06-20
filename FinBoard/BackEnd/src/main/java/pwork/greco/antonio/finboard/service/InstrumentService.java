@@ -65,7 +65,7 @@ public class InstrumentService {
                 .build();
     }
 
-    private Instrument toEntity(InstrumentDto dto) {
+    public Instrument toEntity(InstrumentDto dto) {
         InstrumentType type = instrumentTypeRepository.findById(dto.getInstrumentTypeId())
                 .orElseThrow(() -> new RuntimeException("InstrumentType not found with ID: " + dto.getInstrumentTypeId()));
         return Instrument.builder()

@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pwork.greco.antonio.finboard.dto.OrderDto;
 import pwork.greco.antonio.finboard.entity.*;
 import pwork.greco.antonio.finboard.repository.*;
+import pwork.greco.antonio.finboard.service.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,6 +21,10 @@ public class OrderService {
     private final IPortfolioRepository portfolioRepository;
     private final IInstrumentRepository instrumentRepository;
     private final IUserRepository userRepository;
+
+    private final PortfolioService portfolioService;
+    private final InstrumentService instrumentService;
+    private final UserService userService;
 
     public List<OrderDto> getAll() {
         return orderRepository.findAll().stream()
@@ -69,11 +74,25 @@ public class OrderService {
     // Mapping
 
     private OrderDto toDto(Order entity) {
+
+        //return OrderDto.builder()
+        //        .id(entity.getId())
+        //        .portfolioId(entity.getPortfolio().getId())
+        //        .instrumentId(entity.getInstrument().getId())
+        //        .operatorId(entity.getOperator().getId())
+        //        .side(entity.getSide())
+        //        .quantity(entity.getQuantity())
+        //        .price(entity.getPrice())
+        //        .status(entity.getStatus())
+        //        .createdAt(entity.getCreatedAt())
+        //        .executedAt(entity.getExecutedAt())
+        //        .deleted(entity.getDeleted())
+        //        .build();
         return OrderDto.builder()
                 .id(entity.getId())
-                .portfolioId(entity.getPortfolio().getId())
-                .instrumentId(entity.getInstrument().getId())
-                .operatorId(entity.getOperator().getId())
+                .portfolio(portfolioService.getById(entity.getPortfolio().getId()))
+                .instrument(instrumentService.getById(entity.getInstrument().getId()))
+                .user(userService.getUserById(entity.getOperator().getId()))
                 .side(entity.getSide())
                 .quantity(entity.getQuantity())
                 .price(entity.getPrice())
@@ -85,18 +104,32 @@ public class OrderService {
     }
 
     private Order toEntity(OrderDto dto) {
-        Portfolio portfolio = portfolioRepository.findById(dto.getPortfolioId())
-                .orElseThrow(() -> new RuntimeException("Portfolio not found"));
-        Instrument instrument = instrumentRepository.findById(dto.getInstrumentId())
-                .orElseThrow(() -> new RuntimeException("Instrument not found"));
-        User operator = userRepository.findById(dto.getOperatorId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+//        Portfolio portfolio = portfolioRepository.findById(dto.getPortfolioId())
+//                .orElseThrow(() -> new RuntimeException("Portfolio not found"));
+//        Instrument instrument = instrumentRepository.findById(dto.getInstrumentId())
+//                .orElseThrow(() -> new RuntimeException("Instrument not found"));
+//        User operator = userRepository.findById(dto.getOperatorId())
+//                .orElseThrow(() -> new RuntimeException("User not found"));
+//
+//        return Order.builder()
+//                .id(dto.getId())
+//                .portfolio(portfolio)
+//                .instrument(instrument)
+//                .operator(operator)
+//                .side(dto.getSide())
+//                .quantity(dto.getQuantity())
+//                .price(dto.getPrice())
+//                .status(dto.getStatus())
+//                .createdAt(dto.getCreatedAt())
+//                .executedAt(dto.getExecutedAt())
+//                .deleted(dto.getDeleted())
+//                .build();
 
         return Order.builder()
                 .id(dto.getId())
-                .portfolio(portfolio)
-                .instrument(instrument)
-                .operator(operator)
+                .portfolio(portfolioService.toEntity(dto.getPortfolio()))
+                .instrument(instrumentService.toEntity(dto.getInstrument()))
+                .operator(userService.toEntity(dto.getUser()))
                 .side(dto.getSide())
                 .quantity(dto.getQuantity())
                 .price(dto.getPrice())
