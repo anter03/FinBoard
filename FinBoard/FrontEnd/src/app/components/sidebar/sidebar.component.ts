@@ -43,8 +43,8 @@ export class SidebarComponent implements OnInit {
     {
       icon: 'fas fa-bell',
       label: 'Notifiche',
-      route: '/notifications',
-      active: false,
+      route: '/dashboard/messagecenter',
+      active: true,
       badge: 3
     },
     {
