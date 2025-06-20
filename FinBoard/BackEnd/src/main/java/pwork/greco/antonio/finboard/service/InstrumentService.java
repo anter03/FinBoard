@@ -55,11 +55,13 @@ public class InstrumentService {
 
     // Mapping
 
-    private InstrumentDto toDto(Instrument instrument) {
+    public InstrumentDto toDto(Instrument instrument) {
+
         return InstrumentDto.builder()
                 .id(instrument.getId())
                 .name(instrument.getName())
                 .instrumentTypeId(instrument.getInstrumentType().getId())
+                .instrumentTypeDescription(instrument.getInstrumentType().getName())
                 .currency(instrument.getCurrency())
                 .isin(instrument.getIsin())
                 .build();

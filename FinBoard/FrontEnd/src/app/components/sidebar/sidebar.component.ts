@@ -37,7 +37,7 @@ export class SidebarComponent implements OnInit {
     {
       icon: 'fas fa-exchange-alt',
       label: 'Gestione Ordini',
-      route: '/ordermanagment',
+      route: '/dashboard/ordermanagment',
       active: true
     },
     {

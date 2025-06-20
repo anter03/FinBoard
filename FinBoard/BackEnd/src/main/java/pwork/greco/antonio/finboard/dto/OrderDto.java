@@ -37,4 +37,6 @@ public class OrderDto {
     private LocalDateTime createdAt;
     private LocalDateTime executedAt;
     private Boolean deleted;
+    private LocalDateTime evaluationDate;
+    private LocalDateTime operationDate;
 }

@@ -10,6 +10,7 @@ public class InstrumentDto {
     private Long id;
     private String name;
     private Long instrumentTypeId;
+    private String instrumentTypeDescription;
     private String currency;
     private String isin;
 }

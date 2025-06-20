@@ -15,4 +15,6 @@ public class PortfolioDto {
     private String name;
     private LocalDateTime createdAt;
     private Boolean deleted;
+    private LocalDateTime operationDate;
+    private LocalDateTime evaluationDate;
 }

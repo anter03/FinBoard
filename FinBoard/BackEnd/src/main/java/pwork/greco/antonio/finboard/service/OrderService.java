@@ -73,7 +73,7 @@ public class OrderService {
 
     // Mapping
 
-    private OrderDto toDto(Order entity) {
+    public OrderDto toDto(Order entity) {
 
         //return OrderDto.builder()
         //        .id(entity.getId())
@@ -100,10 +100,12 @@ public class OrderService {
                 .createdAt(entity.getCreatedAt())
                 .executedAt(entity.getExecutedAt())
                 .deleted(entity.getDeleted())
+                .evaluationDate(entity.getEvaluationDate())
+                .operationDate(entity.getOperationDate())
                 .build();
     }
 
-    private Order toEntity(OrderDto dto) {
+    public Order toEntity(OrderDto dto) {
 //        Portfolio portfolio = portfolioRepository.findById(dto.getPortfolioId())
 //                .orElseThrow(() -> new RuntimeException("Portfolio not found"));
 //        Instrument instrument = instrumentRepository.findById(dto.getInstrumentId())
@@ -137,6 +139,8 @@ public class OrderService {
                 .createdAt(dto.getCreatedAt())
                 .executedAt(dto.getExecutedAt())
                 .deleted(dto.getDeleted())
+                .operationDate(dto.getOperationDate())
+                .evaluationDate(dto.getEvaluationDate())
                 .build();
     }
 }
