@@ -62,6 +62,8 @@ public class InstrumentService {
                 .instrumentTypeId(instrument.getInstrumentType().getId())
                 .currency(instrument.getCurrency())
                 .isin(instrument.getIsin())
+                .country(instrument.getCountry())
+                .rating(instrument.getRating())
                 .build();
     }
 
@@ -74,6 +76,8 @@ public class InstrumentService {
                 .instrumentType(type)
                 .currency(dto.getCurrency())
                 .isin(dto.getIsin())
+                .rating(dto.getRating())
+                .rating(dto.getCountry())
                 .build();
     }
 }

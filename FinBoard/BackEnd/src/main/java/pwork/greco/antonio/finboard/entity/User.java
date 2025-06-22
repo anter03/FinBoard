@@ -37,6 +37,9 @@ public class User {
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+
+    private Long profileId;
+
     @Column(nullable = false)
     private boolean deleted = false;
 

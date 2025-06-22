@@ -1,6 +1,7 @@
 package pwork.greco.antonio.finboard.dto;
 
 import lombok.*;
+import pwork.greco.antonio.finboard.entity.Profile;
 
 import java.time.LocalDateTime;
 
@@ -15,5 +16,6 @@ public class UserDto {
     private String passwordHash;
     private String email;
     private LocalDateTime createdAt;
+    private Profile profile;
     private Boolean deleted;
 }

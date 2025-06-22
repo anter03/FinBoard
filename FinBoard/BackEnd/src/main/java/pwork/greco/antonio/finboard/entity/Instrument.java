@@ -27,4 +27,10 @@ public class Instrument {
 
     @Column(length = 20, unique = true)
     private String isin;
+
+    @Column(length = 20)
+    private String rating;
+
+    @Column(length = 20)
+    private String country;
 }
