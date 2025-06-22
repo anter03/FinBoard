@@ -1,0 +1,199 @@
+<div class="message-center-container">
+  <!-- Header -->
+  <div class="header-section">
+    <div class="header-title">
+      <i class="icon-bell"></i>
+      <h1>Centro Messaggi</h1>
+      <span class="unread-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+    </div>
+    <div class="header-subtitle">
+      Gestisci le tue notifiche e messaggi di sistema
+    </div>
+  </div>
+
+  <!-- Filtri di Ricerca -->
+  <div class="filters-section">
+    <div class="filters-header">
+      <i class="icon-filter"></i>
+      <span>Filtri di Ricerca</span>
+      <button class="clear-filters-btn" (click)="clearFilters()" *ngIf="selectedTipo !== 'tutti' || selectedStato !== 'tutti' || searchTerm || dataInizio || dataFine">
+        <i class="icon-x"></i>
+        Pulisci Filtri
+      </button>
+    </div>
+
+    <div class="filters-grid">
+      <!-- Prima riga filtri -->
+      <div class="filter-row">
+        <div class="filter-group">
+          <label>ID/Titolo</label>
+          <input 
+            type="text" 
+            [(ngModel)]="searchTerm" 
+            (input)="onFilterChange()"
+            placeholder="Cerca per ID o titolo..."
+            class="filter-input">
+        </div>
+
+        <div class="filter-group">
+          <label>Tipo</label>
+          <select 
+            [(ngModel)]="selectedTipo" 
+            (change)="onFilterChange()"
+            class="filter-select">
+            <option *ngFor="let tipo of tipiNotifica" [value]="tipo.value">
+              {{ tipo.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Stato</label>
+          <select 
+            [(ngModel)]="selectedStato" 
+            (change)="onFilterChange()"
+            class="filter-select">
+            <option *ngFor="let stato of statiNotifica" [value]="stato.value">
+              {{ stato.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Seconda riga filtri -->
+      <div class="filter-row">
+        <div class="filter-group">
+          <label>Data Inizio</label>
+          <input 
+            type="date" 
+            [(ngModel)]="dataInizio" 
+            (change)="onFilterChange()"
+            class="filter-input">
+        </div>
+
+        <div class="filter-group">
+          <label>Data Fine</label>
+          <input 
+            type="date" 
+            [(ngModel)]="dataFine" 
+            (change)="onFilterChange()"
+            class="filter-input">
+        </div>
+
+        <div class="filter-group search-button-group">
+          <button class="search-btn" (click)="onFilterChange()">
+            <i class="icon-search"></i>
+            Cerca Messaggi
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Risultati -->
+  <div class="results-section">
+    <div class="results-header">
+      <div class="results-info">
+        <i class="icon-list"></i>
+        <span>Risultati della Ricerca</span>
+        <span class="results-count">({{ filteredNotifications.length }} messaggi trovati)</span>
+      </div>
+      <div class="results-actions">
+        <button class="action-btn secondary" (click)="markAllAsRead()" *ngIf="unreadCount > 0">
+          <i class="icon-check-circle"></i>
+          Segna Tutti come Letti
+        </button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="notifications-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>TIPO</th>
+            <th>TITOLO</th>
+            <th>MESSAGGIO</th>
+            <th>DATA CREAZIONE</th>
+            <th>PRIORITÀ</th>
+            <th>STATO</th>
+            <th>AZIONI</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let notification of filteredNotifications" 
+              [class.unread]="!notification.letto"
+              [class.read]="notification.letto">
+            
+            <td class="id-cell">
+              <span class="notification-id">{{ notification.id }}</span>
+            </td>
+
+            <td class="type-cell">
+              <div class="type-badge" [class]="'type-' + notification.tipo">
+                <i [class]="'icon-' + getTipoIcon(notification.tipo)"></i>
+                <span>{{ notification.tipo | titlecase }}</span>
+              </div>
+            </td>
+
+            <td class="title-cell">
+              <div class="notification-title">
+                {{ notification.titolo }}
+              </div>
+            </td>
+
+            <td class="message-cell">
+              <div class="notification-message">
+                {{ notification.messaggio }}
+              </div>
+            </td>
+
+            <td class="date-cell">
+              {{ formatDate(notification.dataCreazione) }}
+            </td>
+
+            <td class="priority-cell">
+              <span class="priority-badge" [class]="getPrioritaClass(notification.priorita)">
+                {{ notification.priorita | uppercase }}
+              </span>
+            </td>
+
+            <td class="status-cell">
+              <span class="status-badge" [class]="notification.letto ? 'read' : 'unread'">
+                {{ notification.letto ? 'Letto' : 'Non Letto' }}
+              </span>
+            </td>
+
+            <td class="actions-cell">
+              <div class="action-buttons">
+                <button class="action-icon-btn view" title="Visualizza dettagli">
+                  <i class="icon-eye"></i>
+                </button>
+                
+                <button 
+                  class="action-icon-btn" 
+                  [class.mark-read]="!notification.letto"
+                  [class.mark-unread]="notification.letto"
+                  [title]="notification.letto ? 'Segna come non letto' : 'Segna come letto'"
+                  (click)="notification.letto ? markAsUnread(notification.id) : markAsRead(notification.id)">
+                  <i [class]="notification.letto ? 'icon-mail' : 'icon-mail-open'"></i>
+                </button>
+                
+                <button class="action-icon-btn delete" (click)="deleteNotification(notification.id)" title="Elimina">
+                  <i class="icon-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Stato vuoto -->
+      <div class="empty-state" *ngIf="filteredNotifications.length === 0">
+        <i class="icon-bell-off"></i>
+        <h3>Nessun messaggio trovato</h3>
+        <p>Non ci sono messaggi che corrispondono ai filtri selezionati.</p>
+      </div>
+    </div>
+  </div>
+</div>

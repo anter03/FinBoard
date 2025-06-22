@@ -1,25 +1,30 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; // <--- Questo importa ngModel
 import { OrderFormComponent } from '../../components/order-form/order-form.component'; // <--- Questo importa ngModel
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Inject } from '@angular/core'
-import { PortfolioService } from '../../services/portfolio.service';
-import { Portfolio } from '../../models/Portfolio';
 import { HttpClientModule } from '@angular/common/http';
+//import { PortfolioService } from '../../services/portfolio.service';
+import { Portfolio } from '../../models/Portfolio';
+import { Order} from '../../models/Order';
+import { OrderService } from '../../services/order.service';
+import { PortfolioService } from '../../services/portfolio.service';
 
 
-export interface Order {
-  id: string;
-  isin: string;
-  nominale: number;
-  portafoglio: string;
-  dataOperazione: Date;
-  dataValuta: Date;
-  stato: string;
-  divisa: string;
-  tipo:string;
-}
+
+//
+//export interface Order {
+//  id: string;
+//  isin: string;
+//  nominale: number;
+//  portafoglio: string;
+//  dataOperazione: Date;
+//  dataValuta: Date;
+//  stato: string;
+//  divisa: string;
+//  tipo:string;
+//}
 
 export interface OrderFilters {
   id: string;
@@ -39,65 +44,72 @@ export interface OrderFilters {
   styleUrls: ['./orders-management.component.css']
 })
 export class OrdersManagementComponent implements OnInit {
+  private portfolioService = inject(PortfolioService);
+  private orderService = inject(OrderService);
   
-  orders: Order[] = [
-    {
-      id: 'ORD001',
-      isin: 'IT0003128367',
-      nominale: 10000,
-      tipo: 'acq',
-      portafoglio: 'Portfolio A',
-      dataOperazione: new Date('2024-06-01'),
-      dataValuta: new Date('2024-06-03'),
-      stato: 'Eseguito',
-      divisa: 'EUR'
-    },
-    {
-      id: 'ORD002',
-      isin: 'US0378331005',
-      nominale: 5000,
-      tipo: 'ven',
-      portafoglio: 'Portfolio B',
-      dataOperazione: new Date('2024-06-02'),
-      dataValuta: new Date('2024-06-04'),
-      stato: 'Pending',
-      divisa: 'USD'
-    },
-    {
-      id: 'ORD003',
-      isin: 'DE0007164600',
-      nominale: 15000,
-        tipo: 'acq',
-      portafoglio: 'Portfolio A',
-      dataOperazione: new Date('2024-06-03'),
-      dataValuta: new Date('2024-06-05'),
-      stato: 'Annullato',
-      divisa: 'EUR'
-    },
-    {
-      id: 'ORD004',
-      isin: 'GB0009252882',
-      nominale: 8000,
-        tipo: 'acq',
-      portafoglio: 'Portfolio C',
-      dataOperazione: new Date('2024-06-04'),
-      dataValuta: new Date('2024-06-06'),
-      stato: 'Eseguito',
-      divisa: 'GBP'
-    },
-    {
-      id: 'ORD005',
-      isin: 'FR0000120321',
-      nominale: 12000,
-        tipo: 'acq',
-      portafoglio: 'Portfolio B',
-      dataOperazione: new Date('2024-06-05'),
-      dataValuta: new Date('2024-06-07'),
-      stato: 'Pending',
-      divisa: 'EUR'
-    }
-  ];
+  
+  
+  
+  // orders: Order[] = [
+  //   {
+  //     id: 'ORD001',
+  //     isin: 'IT0003128367',
+  //     nominale: 10000,
+  //     tipo: 'acq',
+  //     portafoglio: 'Portfolio A',
+  //     dataOperazione: new Date('2024-06-01'),
+  //     dataValuta: new Date('2024-06-03'),
+  //     stato: 'Eseguito',
+  //     divisa: 'EUR'
+  //   },
+  //   {
+  //     id: 'ORD002',
+  //     isin: 'US0378331005',
+  //     nominale: 5000,
+  //     tipo: 'ven',
+  //     portafoglio: 'Portfolio B',
+  //     dataOperazione: new Date('2024-06-02'),
+  //     dataValuta: new Date('2024-06-04'),
+  //     stato: 'Pending',
+  //     divisa: 'USD'
+  //   },
+  //   {
+  //     id: 'ORD003',
+  //     isin: 'DE0007164600',
+  //     nominale: 15000,
+  //       tipo: 'acq',
+  //     portafoglio: 'Portfolio A',
+  //     dataOperazione: new Date('2024-06-03'),
+  //     dataValuta: new Date('2024-06-05'),
+  //     stato: 'Annullato',
+  //     divisa: 'EUR'
+  //   },
+  //   {
+  //     id: 'ORD004',
+  //     isin: 'GB0009252882',
+  //     nominale: 8000,
+  //       tipo: 'acq',
+  //     portafoglio: 'Portfolio C',
+  //     dataOperazione: new Date('2024-06-04'),
+  //     dataValuta: new Date('2024-06-06'),
+  //     stato: 'Eseguito',
+  //     divisa: 'GBP'
+  //   },
+  //   {
+  //     id: 'ORD005',
+  //     isin: 'FR0000120321',
+  //     nominale: 12000,
+  //       tipo: 'acq',
+  //     portafoglio: 'Portfolio B',
+  //     dataOperazione: new Date('2024-06-05'),
+  //     dataValuta: new Date('2024-06-07'),
+  //     stato: 'Pending',
+  //     divisa: 'EUR'
+  //   }
+  // ];
 
+//ordini
+  orders: Order[] = []
   filteredOrders: Order[] = [];
   
   isLoading: boolean = false;
@@ -114,16 +126,29 @@ export class OrdersManagementComponent implements OnInit {
   };
 
   portfolioOptions: Portfolio[] = [];
+
   statoOptions = ['Eseguito', 'Pending', 'Annullato'];
   divisaOptions = ['EUR', 'USD', 'GBP', 'JPY'];
 
-  constructor(private dialog: MatDialog,private portfolioService: PortfolioService) { }
+  constructor(private dialog: MatDialog) { }
 
   ngOnInit(): void {
     this.filteredOrders = [...this.orders];
+
+
     this.portfolioService.getAll().subscribe({
       next: (data) => {
         this.portfolioOptions = data;
+      },
+      error: (err) => {
+        console.error('Errore nel caricamento dei portfolio:', err);
+      },
+    });
+
+    this.orderService.getAll().subscribe({
+      next: (data) => {
+        this.orders = data;
+        this.filteredOrders = [...this.orders]; 
       },
       error: (err) => {
         console.error('Errore nel caricamento dei portfolio:', err);
@@ -143,57 +168,57 @@ export class OrdersManagementComponent implements OnInit {
     }, 500);
   }
 
-  private matchesFilters(order: Order): boolean {
-    // Filtra per ID
-    if (this.filters.id && !order.id.toLowerCase().includes(this.filters.id.toLowerCase())) {
-      return false;
-    }
-
-    // Filtra per ISIN
-    if (this.filters.isin && !order.isin.toLowerCase().includes(this.filters.isin.toLowerCase())) {
-      return false;
-    }
-
-    // Filtra per Nominale
-    if (this.filters.nominale && order.nominale.toString() !== this.filters.nominale) {
-      return false;
-    }
-
-    // Filtra per Portafoglio
-    if (this.filters.portafoglio && order.portafoglio !== this.filters.portafoglio) {
-      return false;
-    }
-
-    // Filtra per Data Operazione
-    if (this.filters.dataOperazione) {
-      const filterDate = new Date(this.filters.dataOperazione);
-      const orderDate = new Date(order.dataOperazione);
-      if (orderDate.toDateString() !== filterDate.toDateString()) {
-        return false;
-      }
-    }
-
-    // Filtra per Data Valuta
-    if (this.filters.dataValuta) {
-      const filterDate = new Date(this.filters.dataValuta);
-      const orderDate = new Date(order.dataValuta);
-      if (orderDate.toDateString() !== filterDate.toDateString()) {
-        return false;
-      }
-    }
-
-    // Filtra per Stato
-    if (this.filters.stato && order.stato !== this.filters.stato) {
-      return false;
-    }
-
-    // Filtra per Divisa
-    if (this.filters.divisa && order.divisa !== this.filters.divisa) {
-      return false;
-    }
-
-    return true;
+private matchesFilters(order: Order): boolean {
+  // Filtra per ID
+  if (this.filters.id && !order.id.toString().includes(this.filters.id)) {
+    return false;
   }
+
+  // Filtra per ISIN (ora in order.instrument.isin)
+  if (this.filters.isin && !order.instrument?.isin?.toLowerCase().includes(this.filters.isin.toLowerCase())) {
+    return false;
+  }
+
+  // Filtra per Nominale (ora quantity)
+  if (this.filters.nominale && order.quantity.toString() !== this.filters.nominale) {
+    return false;
+  }
+
+  // Filtra per Portafoglio (ora order.portfolio.name)
+  if (this.filters.portafoglio && order.portfolio?.name !== this.filters.portafoglio) {
+    return false;
+  }
+
+  // Filtra per Data Operazione (ora operationDate)
+  if (this.filters.dataOperazione) {
+    const filterDate = new Date(this.filters.dataOperazione);
+    const orderDate = new Date(order.operationDate);
+    if (orderDate.toDateString() !== filterDate.toDateString()) {
+      return false;
+    }
+  }
+
+  // Filtra per Data Valuta (ora evaluationDate)
+  if (this.filters.dataValuta) {
+    const filterDate = new Date(this.filters.dataValuta);
+    const orderDate = new Date(order.evaluationDate);
+    if (orderDate.toDateString() !== filterDate.toDateString()) {
+      return false;
+    }
+  }
+
+  // Filtra per Stato (ora status)
+  if (this.filters.stato && order.status !== this.filters.stato) {
+    return false;
+  }
+
+  // Filtra per Divisa (ora in order.instrument.currency)
+  if (this.filters.divisa && order.instrument?.currency !== this.filters.divisa) {
+    return false;
+  }
+
+  return true;
+}
 
   clearFilters(): void {
     this.filters = {

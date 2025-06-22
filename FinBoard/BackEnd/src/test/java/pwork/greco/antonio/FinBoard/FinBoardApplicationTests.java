@@ -1,4 +1,4 @@
-package pwork.greco.antonio.FinBoard;
+package pwork.greco.antonio.finboard;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

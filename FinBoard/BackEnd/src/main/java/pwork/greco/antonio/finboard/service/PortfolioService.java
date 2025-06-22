@@ -74,7 +74,7 @@ public class PortfolioService {
                 .build();
     }
 
-    private Portfolio toEntity(PortfolioDto dto) {
+    public Portfolio toEntity(PortfolioDto dto) {
         User user = dto.getUserId() != null
                 ? userRepository.findById(dto.getUserId().longValue())
                 .orElseThrow(() -> new RuntimeException("User not found"))

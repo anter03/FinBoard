@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 @Entity
 @Table(name = "[Order]")
+
 public class Order {
 
     @Id
@@ -49,4 +50,9 @@ public class Order {
 
     @Column(nullable = false)
     private Boolean deleted;
+
+  
+    private LocalDateTime operationDate;
+
+    private LocalDateTime evaluationDate;
 }

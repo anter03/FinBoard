@@ -172,18 +172,18 @@
         <tbody>
           <tr *ngFor="let order of filteredOrders" class="order-row">
             <td class="order-id">{{ order.id }}</td>
-            <td class="order-isin">{{ order.isin }}</td>
-            <td class="order-nominale">{{ formatCurrency(order.nominale, order.divisa) }}</td>
-            <td class="order-nominale">{{ order.tipo }}</td>
-            <td class="order-portfolio">{{ order.portafoglio }}</td>
-            <td class="order-date">{{ formatDate(order.dataOperazione) }}</td>
-            <td class="order-date">{{ formatDate(order.dataValuta) }}</td>
+            <td class="order-isin">{{ order.instrument.isin }}</td>
+            <td class="order-nominale">{{ formatCurrency(order.quantity, order.instrument.currency) }}</td>
+            <td class="order-nominale">{{ order.side }}</td>
+            <td class="order-portfolio">{{ order.portfolio.name }}</td>
+            <td class="order-date">{{ formatDate(order.operationDate) }}</td>
+            <td class="order-date">{{ formatDate(order.evaluationDate) }}</td>
             <td class="order-status">
-              <span class="status-badge" [class]="getStatusClass(order.stato)">
-                {{ order.stato }}
+              <span class="status-badge" [class]="getStatusClass(order.status)">
+                {{ order.status }}
               </span>
             </td>
-            <td class="order-currency">{{ order.divisa }}</td>
+            <td class="order-currency">{{ order.instrument.currency }}</td>
             <td class="order-actions">
               <button class="action-btn view-btn" (click)="viewOrder(order)" title="Visualizza">
                 <i class="fas fa-eye"></i>
