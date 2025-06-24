@@ -1,0 +1,183 @@
+-- =====================================================
+-- Script per reset e popolamento database finBoard
+-- =====================================================
+
+-- Disabilita i vincoli di chiave esterna per evitare errori durante la cancellazione
+ALTER TABLE finboard.dbo.[order] NOCHECK CONSTRAINT ALL;
+ALTER TABLE finboard.dbo.portfolio NOCHECK CONSTRAINT ALL;
+ALTER TABLE finboard.dbo.instrument NOCHECK CONSTRAINT ALL;
+ALTER TABLE finboard.dbo.[user] NOCHECK CONSTRAINT ALL;
+ALTER TABLE finboard.dbo.check_limit NOCHECK CONSTRAINT ALL;
+
+-- =====================================================
+-- CANCELLAZIONE DATI (ordine inverso delle dipendenze)
+-- =====================================================
+
+-- Cancella ordini (dipende da portfolio, user, instrument)
+DELETE FROM finboard.dbo.[order];
+
+-- Cancella portfolio (dipende da company, user)
+DELETE FROM finboard.dbo.portfolio;
+
+-- Cancella check_limit (dipende da profile, instrument_type)
+DELETE FROM finboard.dbo.check_limit;
+
+-- Cancella user (dipende da company, profile)
+DELETE FROM finboard.dbo.[user];
+
+-- Cancella instrument (dipende da instrument_type)
+DELETE FROM finboard.dbo.instrument;
+
+-- Cancella tabelle senza dipendenze
+DELETE FROM finboard.dbo.company;
+DELETE FROM finboard.dbo.instrument_type;
+DELETE FROM finboard.dbo.profile;
+
+-- =====================================================
+-- RESET IDENTITY
+-- =====================================================
+
+DBCC CHECKIDENT ('finboard.dbo.[order]', RESEED, 0);
+DBCC CHECKIDENT ('finboard.dbo.portfolio', RESEED, 0);
+DBCC CHECKIDENT ('finboard.dbo.check_limit', RESEED, 0);
+DBCC CHECKIDENT ('finboard.dbo.[user]', RESEED, 0);
+DBCC CHECKIDENT ('finboard.dbo.instrument', RESEED, 0);
+DBCC CHECKIDENT ('finboard.dbo.company', RESEED, 0);
+DBCC CHECKIDENT ('finboard.dbo.instrument_type', RESEED, 0);
+DBCC CHECKIDENT ('finboard.dbo.profile', RESEED, 0);
+
+-- =====================================================
+-- INSERT DATI (ordine corretto delle dipendenze)
+-- =====================================================
+
+-- 1. COMPANY (tabella indipendente)
+INSERT INTO finboard.dbo.company (created_at, deleted, name) VALUES 
+('2024-01-15 10:00:00', 0, 'finBoard'),
+('2024-01-15 10:00:00', 0, 'Alpha Investments'),
+('2024-01-15 10:00:00', 0, 'Beta Capital'),
+('2024-01-15 10:00:00', 0, 'Gamma Securities'),
+('2024-01-15 10:00:00', 0, 'Delta Asset Management');
+
+-- 2. INSTRUMENT_TYPE (tabella indipendente)
+INSERT INTO finboard.dbo.instrument_type (name) VALUES 
+('Stock'),
+('Bond'),
+('ETF'),
+('Mutual Fund'),
+('Commodity'),
+('Currency'),
+('Derivative'),
+('Option'),
+('Future'),
+('REIT');
+
+-- 3. PROFILE (tabella indipendente)
+INSERT INTO finboard.dbo.profile (deleted, description, name) VALUES 
+(0, 'Amministratore del sistema con accesso completo', 'Administrator'),
+(0, 'Trader con permessi di trading completi', 'Senior Trader'),
+(0, 'Trader con permessi limitati', 'Junior Trader'),
+(0, 'Analista di mercato con accesso in sola lettura', 'Market Analyst'),
+(0, 'Manager di portafoglio', 'Portfolio Manager'),
+(0, 'Responsabile del rischio', 'Risk Manager'),
+(0, 'Utente in sola lettura', 'Read Only User');
+
+-- 4. USER (dipende da company e profile)
+INSERT INTO finboard.dbo.[user] (company_id, created_at, deleted, email, password_hash, username, profile_id) VALUES 
+(1, '2024-01-15 10:00:00', 0, 'admin@finboard.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5JvFMQs8VtJc7RJEoVgU6Jm.qyZA8RK', 'admin', 1),
+(1, '2024-01-15 10:30:00', 0, 'marco.rossi@finboard.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5JvFMQs8VtJc7RJEoVgU6Jm.qyZA8RK', 'mrossi', 2),
+(1, '2024-01-15 11:00:00', 0, 'lucia.bianchi@finboard.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5JvFMQs8VtJc7RJEoVgU6Jm.qyZA8RK', 'lbianchi', 3),
+(2, '2024-01-15 11:30:00', 0, 'giovanni.verdi@alpha.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5JvFMQs8VtJc7RJEoVgU6Jm.qyZA8RK', 'gverdi', 4),
+(2, '2024-01-15 12:00:00', 0, 'anna.neri@alpha.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5JvFMQs8VtJc7RJEoVgU6Jm.qyZA8RK', 'aneri', 5),
+(3, '2024-01-15 12:30:00', 0, 'francesco.gialli@beta.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5JvFMQs8VtJc7RJEoVgU6Jm.qyZA8RK', 'fgialli', 6),
+(3, '2024-01-15 13:00:00', 0, 'sara.viola@beta.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5JvFMQs8VtJc7RJEoVgU6Jm.qyZA8RK', 'sviola', 7),
+(4, '2024-01-15 13:30:00', 0, 'michele.azzurri@gamma.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5JvFMQs8VtJc7RJEoVgU6Jm.qyZA8RK', 'mazzurri', 2),
+(5, '2024-01-15 14:00:00', 0, 'elena.rosa@delta.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5JvFMQs8VtJc7RJEoVgU6Jm.qyZA8RK', 'erosa', 5);
+
+-- 5. INSTRUMENT (dipende da instrument_type)
+INSERT INTO finboard.dbo.instrument (currency, isin, name, instrument_type_id, country, rating) VALUES 
+('EUR', 'IT0003128367', 'ENI SpA', 1, 'Italy', 'BBB+'),
+('EUR', 'IT0000072618', 'Intesa Sanpaolo', 1, 'Italy', 'BBB'),
+('USD', 'US0378331005', 'Apple Inc', 1, 'USA', 'AAA'),
+('USD', 'US5949181045', 'Microsoft Corporation', 1, 'USA', 'AAA'),
+('EUR', 'IT0005218380', 'BTP Italia 2.55% 2030', 2, 'Italy', 'BBB'),
+('USD', 'US912828Z490', 'US Treasury 2.75% 2032', 2, 'USA', 'AAA'),
+('EUR', 'IE00B4L5Y983', 'iShares Core MSCI World ETF', 3, 'Ireland', 'AA'),
+('USD', 'US46434G1031', 'Invesco QQQ Trust ETF', 3, 'USA', 'AA+'),
+('EUR', 'LU0392494562', 'Franklin Technology Fund', 4, 'Luxembourg', 'A'),
+('USD', 'XAU', 'Gold Spot', 5, 'Global', 'AAA'),
+('EUR', 'EURUSD', 'EUR/USD Currency Pair', 6, 'Global', 'AA'),
+('USD', 'CLZ24', 'Crude Oil Future Dec 2024', 7, 'USA', 'BBB');
+
+-- 6. PORTFOLIO (dipende da company e user)
+INSERT INTO finboard.dbo.portfolio (created_at, deleted, name, company_id, user_id) VALUES 
+('2024-01-15 15:00:00', 0, 'Portfolio Azionario Europa', 1, 2),
+('2024-01-15 15:00:00', 0, 'Portfolio Obbligazionario', 1, 2),
+('2024-01-15 15:00:00', 0, 'Portfolio Diversificato', 1, 3),
+('2024-01-15 15:00:00', 0, 'Alpha Growth Portfolio', 2, 4),
+('2024-01-15 15:00:00', 0, 'Alpha Income Portfolio', 2, 5),
+('2024-01-15 15:00:00', 0, 'Beta Tactical Portfolio', 3, 6),
+('2024-01-15 15:00:00', 0, 'Gamma Balanced Portfolio', 4, 8),
+('2024-01-15 15:00:00', 0, 'Delta Conservative Portfolio', 5, 9);
+
+-- 7. CHECK_LIMIT (dipende da profile e instrument_type)
+INSERT INTO finboard.dbo.check_limit (action_type, country, created_at, description, instrument_type_id, limit_type, limit_value, profile_id, rating) VALUES 
+('BUY', 'Italy', '2024-01-15 16:00:00', 'Limite massimo acquisto singolo per azioni italiane', 1, 'SINGLE', 1000000.0000, 2, NULL),
+('BUY', 'USA', '2024-01-15 16:00:00', 'Limite massimo acquisto singolo per azioni USA', 1, 'SINGLE', 1500000.0000, 2, NULL),
+('BUY', NULL, '2024-01-15 16:00:00', 'Limite giornaliero per obbligazioni investment grade', 2, 'DAILY', 5000000.0000, 2, 'AAA'),
+('BUY', NULL, '2024-01-15 16:00:00', 'Limite giornaliero per obbligazioni high yield', 2, 'DAILY', 2000000.0000, 2, 'BB'),
+('SELL', 'Italy', '2024-01-15 16:00:00', 'Limite massimo vendita singola per azioni italiane', 1, 'SINGLE', 800000.0000, 3, NULL),
+('BUY', NULL, '2024-01-15 16:00:00', 'Limite mensile per ETF', 3, 'MONTHLY', 10000000.0000, 2, NULL),
+('BUY', NULL, '2024-01-15 16:00:00', 'Limite settimanale per derivati', 7, 'WEEKLY', 3000000.0000, 2, NULL),
+('BUY', 'Global', '2024-01-15 16:00:00', 'Limite giornaliero per commodities', 5, 'DAILY', 1000000.0000, 2, NULL),
+('BUY', NULL, '2024-01-15 16:00:00', 'Limite operazioni junior trader', 1, 'SINGLE', 100000.0000, 3, NULL),
+('SELL', NULL, '2024-01-15 16:00:00', 'Limite vendite junior trader', 1, 'SINGLE', 100000.0000, 3, NULL);
+
+-- 8. ORDER (dipende da instrument, operator(user), portfolio)
+INSERT INTO finboard.dbo.[order] (created_at, deleted, executed_at, price, quantity, side, status, instrument_id, operator_id, portfolio_id, evaluation_date, operation_date, currency) VALUES 
+('2024-01-15 17:00:00.000000', 0, '2024-01-15 17:05:00.000000', 14.2500, 1000.0000, 'BUY', 'EXECUTED', 1, 2, 1, '2024-01-15 16:55:00.000000', '2024-01-15 17:00:00.000000', 'EUR'),
+('2024-01-15 17:10:00.000000', 0, '2024-01-15 17:15:00.000000', 3.4500, 2000.0000, 'BUY', 'EXECUTED', 2, 2, 1, '2024-01-15 17:05:00.000000', '2024-01-15 17:10:00.000000', 'EUR'),
+('2024-01-15 17:20:00.000000', 0, NULL, 195.5000, 500.0000, 'BUY', 'PENDING', 3, 2, 1, '2024-01-15 17:15:00.000000', '2024-01-15 17:20:00.000000', 'USD'),
+('2024-01-15 17:30:00.000000', 0, '2024-01-15 17:35:00.000000', 415.7500, 100.0000, 'BUY', 'EXECUTED', 4, 2, 3, '2024-01-15 17:25:00.000000', '2024-01-15 17:30:00.000000', 'USD'),
+('2024-01-15 17:40:00.000000', 0, '2024-01-15 17:45:00.000000', 98.5000, 10.0000, 'BUY', 'EXECUTED', 5, 3, 2, '2024-01-15 17:35:00.000000', '2024-01-15 17:40:00.000000', 'EUR'),
+('2024-01-15 17:50:00.000000', 0, '2024-01-15 17:55:00.000000', 105.2500, 50.0000, 'BUY', 'EXECUTED', 6, 3, 2, '2024-01-15 17:45:00.000000', '2024-01-15 17:50:00.000000', 'USD'),
+('2024-01-15 18:00:00.000000', 0, NULL, 75.8000, 200.0000, 'BUY', 'PENDING', 7, 4, 4, '2024-01-15 17:55:00.000000', '2024-01-15 18:00:00.000000', 'EUR'),
+('2024-01-15 18:10:00.000000', 0, '2024-01-15 18:15:00.000000', 385.9000, 100.0000, 'BUY', 'EXECUTED', 8, 4, 4, '2024-01-15 18:05:00.000000', '2024-01-15 18:10:00.000000', 'USD'),
+('2024-01-15 18:20:00.000000', 0, '2024-01-15 18:25:00.000000', 45.3000, 500.0000, 'BUY', 'EXECUTED', 9, 5, 5, '2024-01-15 18:15:00.000000', '2024-01-15 18:20:00.000000', 'EUR'),
+('2024-01-15 18:30:00.000000', 0, '2024-01-15 18:35:00.000000', 2485.5000, 2.0000, 'BUY', 'EXECUTED', 10, 6, 6, '2024-01-15 18:25:00.000000', '2024-01-15 18:30:00.000000', 'USD'),
+('2024-01-15 18:40:00.000000', 0, '2024-01-15 18:45:00.000000', 1.1850, 10000.0000, 'BUY', 'EXECUTED', 11, 8, 7, '2024-01-15 18:35:00.000000', '2024-01-15 18:40:00.000000', 'EUR'),
+('2024-01-15 18:50:00.000000', 0, NULL, 85.4000, 100.0000, 'SELL', 'PENDING', 12, 9, 8, '2024-01-15 18:45:00.000000', '2024-01-15 18:50:00.000000', 'USD'),
+('2024-01-15 19:00:00.000000', 0, '2024-01-15 19:05:00.000000', 14.3000, 500.0000, 'SELL', 'EXECUTED', 1, 2, 1, '2024-01-15 18:55:00.000000', '2024-01-15 19:00:00.000000', 'EUR'),
+('2024-01-15 19:10:00.000000', 0, NULL, 3.4800, 1000.0000, 'SELL', 'CANCELLED', 2, 2, 1, '2024-01-15 19:05:00.000000', '2024-01-15 19:10:00.000000', 'EUR'),
+('2024-01-15 19:20:00.000000', 0, '2024-01-15 19:25:00.000000', 196.2500, 250.0000, 'SELL', 'EXECUTED', 3, 3, 3, '2024-01-15 19:15:00.000000', '2024-01-15 19:20:00.000000', 'USD');
+
+-- =====================================================
+-- RIABILITA I VINCOLI DI CHIAVE ESTERNA
+-- =====================================================
+
+ALTER TABLE finboard.dbo.[order] CHECK CONSTRAINT ALL;
+ALTER TABLE finboard.dbo.portfolio CHECK CONSTRAINT ALL;
+ALTER TABLE finboard.dbo.instrument CHECK CONSTRAINT ALL;
+ALTER TABLE finboard.dbo.[user] CHECK CONSTRAINT ALL;
+ALTER TABLE finboard.dbo.check_limit CHECK CONSTRAINT ALL;
+
+-- =====================================================
+-- VERIFICA RISULTATI
+-- =====================================================
+
+SELECT 'company' as tabella, COUNT(*) as record_count FROM finboard.dbo.company
+UNION ALL
+SELECT 'instrument_type', COUNT(*) FROM finboard.dbo.instrument_type
+UNION ALL
+SELECT 'profile', COUNT(*) FROM finboard.dbo.profile
+UNION ALL
+SELECT 'user', COUNT(*) FROM finboard.dbo.[user]
+UNION ALL
+SELECT 'instrument', COUNT(*) FROM finboard.dbo.instrument
+UNION ALL
+SELECT 'portfolio', COUNT(*) FROM finboard.dbo.portfolio
+UNION ALL
+SELECT 'check_limit', COUNT(*) FROM finboard.dbo.check_limit
+UNION ALL
+SELECT 'order', COUNT(*) FROM finboard.dbo.[order];
+
+PRINT 'Reset e popolamento database finBoard completato con successo!';

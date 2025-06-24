@@ -11,7 +11,6 @@ public class InstrumentDto {
     private String name;
     private Long instrumentTypeId;
     private String instrumentTypeDescription;
-    private String currency;
     private String isin;
     private String rating;
     private String country;

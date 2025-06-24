@@ -30,4 +30,5 @@ export interface Order {
   portfolio: Portfolio;
   operationDate: Date;
   evaluationDate: Date;
+  currency:string;
 }

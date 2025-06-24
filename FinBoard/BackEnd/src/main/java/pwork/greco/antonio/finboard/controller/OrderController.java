@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import pwork.greco.antonio.finboard.dto.OrderDto;
+import pwork.greco.antonio.finboard.dto.OrderFilters;
 import pwork.greco.antonio.finboard.service.OrderService;
 
 import java.util.List;
@@ -46,4 +47,14 @@ public class OrderController {
         orderService.hardDelete(id);
         return ResponseEntity.noContent().build();
     }
+
+
+    @PostMapping("/filter")
+    public ResponseEntity<List<OrderDto>> getFilteredOrders(@RequestBody OrderFilters filters) {
+        return ResponseEntity.ok(orderService.getFilteredOrders(filters));
+    }
+
+
+
+
 }

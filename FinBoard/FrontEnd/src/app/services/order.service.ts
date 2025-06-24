@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Order } from '../models/Order';
+import { OrderFilters } from '../models/order-filters';
 
 @Injectable({
   providedIn: 'root',
@@ -40,4 +41,10 @@ export class OrderService {
   hardDelete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}/hard`);
   }
+
+  
+ filterOrders(filters: OrderFilters): Observable<Order[]> {
+   return this.http.post<Order[]>(`${this.apiUrl}/filter`, filters);
+ }
+
 }

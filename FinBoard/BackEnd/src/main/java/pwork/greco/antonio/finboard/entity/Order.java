@@ -50,7 +50,8 @@ public class Order {
 
     @Column(nullable = false)
     private Boolean deleted;
-
+    @Column(nullable = false)
+    private String currency;
   
     private LocalDateTime operationDate;
 

@@ -22,8 +22,6 @@ public class Instrument {
     @JoinColumn(name = "InstrumentTypeId", nullable = false)
     private InstrumentType instrumentType;
 
-    @Column(length = 10, nullable = false)
-    private String currency;
 
     @Column(length = 20, unique = true)
     private String isin;

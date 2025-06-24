@@ -40,7 +40,6 @@ public class InstrumentService {
         Instrument existing = instrumentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Instrument not found with ID: " + id));
         existing.setName(dto.getName());
-        existing.setCurrency(dto.getCurrency());
         existing.setIsin(dto.getIsin());
         existing.setInstrumentType(
                 instrumentTypeRepository.findById(dto.getInstrumentTypeId())
@@ -62,7 +61,6 @@ public class InstrumentService {
                 .name(instrument.getName())
                 .instrumentTypeId(instrument.getInstrumentType().getId())
                 .instrumentTypeDescription(instrument.getInstrumentType().getName())
-                .currency(instrument.getCurrency())
                 .isin(instrument.getIsin())
                 .country(instrument.getCountry())
                 .rating(instrument.getRating())
@@ -76,7 +74,6 @@ public class InstrumentService {
                 .id(dto.getId())
                 .name(dto.getName())
                 .instrumentType(type)
-                .currency(dto.getCurrency())
                 .isin(dto.getIsin())
                 .rating(dto.getRating())
                 .rating(dto.getCountry())

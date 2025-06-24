@@ -4,11 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pwork.greco.antonio.finboard.dto.OrderDto;
+import pwork.greco.antonio.finboard.dto.OrderFilters;
 import pwork.greco.antonio.finboard.entity.*;
 import pwork.greco.antonio.finboard.repository.*;
 import pwork.greco.antonio.finboard.service.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -71,23 +74,16 @@ public class OrderService {
         orderRepository.deleteById(id);
     }
 
+
+
+
+
+
+
+
     // Mapping
 
     public OrderDto toDto(Order entity) {
-
-        //return OrderDto.builder()
-        //        .id(entity.getId())
-        //        .portfolioId(entity.getPortfolio().getId())
-        //        .instrumentId(entity.getInstrument().getId())
-        //        .operatorId(entity.getOperator().getId())
-        //        .side(entity.getSide())
-        //        .quantity(entity.getQuantity())
-        //        .price(entity.getPrice())
-        //        .status(entity.getStatus())
-        //        .createdAt(entity.getCreatedAt())
-        //        .executedAt(entity.getExecutedAt())
-        //        .deleted(entity.getDeleted())
-        //        .build();
         return OrderDto.builder()
                 .id(entity.getId())
                 .portfolio(portfolioService.getById(entity.getPortfolio().getId()))
@@ -102,30 +98,11 @@ public class OrderService {
                 .deleted(entity.getDeleted())
                 .evaluationDate(entity.getEvaluationDate())
                 .operationDate(entity.getOperationDate())
+                .currency((entity.getCurrency()))
                 .build();
     }
 
     public Order toEntity(OrderDto dto) {
-//        Portfolio portfolio = portfolioRepository.findById(dto.getPortfolioId())
-//                .orElseThrow(() -> new RuntimeException("Portfolio not found"));
-//        Instrument instrument = instrumentRepository.findById(dto.getInstrumentId())
-//                .orElseThrow(() -> new RuntimeException("Instrument not found"));
-//        User operator = userRepository.findById(dto.getOperatorId())
-//                .orElseThrow(() -> new RuntimeException("User not found"));
-//
-//        return Order.builder()
-//                .id(dto.getId())
-//                .portfolio(portfolio)
-//                .instrument(instrument)
-//                .operator(operator)
-//                .side(dto.getSide())
-//                .quantity(dto.getQuantity())
-//                .price(dto.getPrice())
-//                .status(dto.getStatus())
-//                .createdAt(dto.getCreatedAt())
-//                .executedAt(dto.getExecutedAt())
-//                .deleted(dto.getDeleted())
-//                .build();
 
         return Order.builder()
                 .id(dto.getId())
@@ -141,6 +118,95 @@ public class OrderService {
                 .deleted(dto.getDeleted())
                 .operationDate(dto.getOperationDate())
                 .evaluationDate(dto.getEvaluationDate())
+                .currency((dto.getCurrency()))
                 .build();
+    }
+
+
+    public List<OrderDto> getFilteredOrders(OrderFilters filters) {
+        boolean noFilters = filters.getId() == null &&
+                filters.getIsin() == null &&
+                filters.getQuantity() == null &&
+                filters.getPortfolio() == null &&
+                filters.getOperationDateFrom() == null &&
+                filters.getOperationDateTo() == null &&
+                filters.getValueDateFrom() == null &&
+                filters.getValueDateTo() == null &&
+                filters.getStatus() == null &&
+                filters.getCurrency() == null &&
+                filters.getSide() == null;
+
+        if (noFilters) {
+            return getAll(); // ritorna tutti gli ordini
+        }
+
+        return orderRepository.findAll().stream()
+                .filter(order -> filters.getId() == null || order.getId().toString().equals(filters.getId()))
+                .filter(order -> filters.getIsin() == null ||
+                        (order.getInstrument() != null && filters.getIsin().equalsIgnoreCase(order.getInstrument().getIsin())))
+                .filter(order -> filters.getQuantity() == null || order.getQuantity().toString().equals(filters.getQuantity()))
+                .filter(order -> filters.getPortfolio() == null ||
+                        (order.getPortfolio() != null && order.getPortfolio().getName().equalsIgnoreCase(filters.getPortfolio())))
+                .filter(order -> filterByOperationDateFrom(order, filters.getOperationDateFrom()))
+                .filter(order -> filterByOperationDateTo(order, filters.getOperationDateTo()))
+                .filter(order -> filterByValueDateFrom(order, filters.getValueDateFrom()))
+                .filter(order -> filterByValueDateTo(order, filters.getValueDateTo()))
+                .filter(order -> filters.getStatus() == null || order.getStatus().equalsIgnoreCase(filters.getStatus()))
+                .filter(order -> filters.getCurrency() == null || order.getCurrency().equalsIgnoreCase(filters.getCurrency()))
+                .filter(order -> filters.getSide() == null || order.getSide().equalsIgnoreCase(filters.getSide()))
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
+    private boolean filterByOperationDateFrom(Order order, String dateFromStr) {
+        if (dateFromStr == null) {
+            return true;
+        }
+        try {
+            LocalDateTime filterDate = LocalDate.parse(dateFromStr).atStartOfDay();
+            return !order.getOperationDate().isBefore(filterDate);
+        } catch (DateTimeParseException e) {
+            //log.warn("Invalid date format for operationDateFrom: {}", dateFromStr);
+            return true; // Include l'ordine se la data non è valida
+        }
+    }
+
+    private boolean filterByOperationDateTo(Order order, String dateToStr) {
+        if (dateToStr == null) {
+            return true;
+        }
+        try {
+            LocalDateTime filterDate = LocalDate.parse(dateToStr).atTime(23, 59, 59);
+            return !order.getOperationDate().isAfter(filterDate);
+        } catch (DateTimeParseException e) {
+            //log.warn("Invalid date format for operationDateTo: {}", dateToStr);
+            return true; // Include l'ordine se la data non è valida
+        }
+    }
+
+    private boolean filterByValueDateFrom(Order order, String dateFromStr) {
+        if (dateFromStr == null) {
+            return true;
+        }
+        try {
+            LocalDateTime filterDate = LocalDate.parse(dateFromStr).atStartOfDay();
+            return !order.getEvaluationDate().isBefore(filterDate);
+        } catch (DateTimeParseException e) {
+            //log.warn("Invalid date format for valueDateFrom: {}", dateFromStr);
+            return true; // Include l'ordine se la data non è valida
+        }
+    }
+
+    private boolean filterByValueDateTo(Order order, String dateToStr) {
+        if (dateToStr == null) {
+            return true;
+        }
+        try {
+            LocalDateTime filterDate = LocalDate.parse(dateToStr).atTime(23, 59, 59);
+            return !order.getEvaluationDate().isAfter(filterDate);
+        } catch (DateTimeParseException e) {
+            //log.warn("Invalid date format for valueDateTo: {}", dateToStr);
+            return true; // Include l'ordine se la data non è valida
+        }
     }
 }

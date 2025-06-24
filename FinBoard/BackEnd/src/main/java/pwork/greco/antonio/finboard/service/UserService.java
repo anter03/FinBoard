@@ -89,7 +89,7 @@ public class UserService {
                 .build();
     }
 
-    private User toEntity(UserDto dto) {
+    public User toEntity(UserDto dto) {
         Long profileId = null;
         if (dto.getProfile() != null) {
             profileId = dto.getProfile().getId();
