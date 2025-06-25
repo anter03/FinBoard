@@ -155,13 +155,34 @@ newOrder(): void {
 }
 
   viewOrder(order: Order): void {
-    console.log('Visualizza ordine:', order);
-    // Qui implementerai la logica per visualizzare l'ordine
+    console.log('Creazione nuovo ordine');
+
+    const dialogRef = this.dialog.open(OrderFormComponent, {
+      width: '1200px',
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      disableClose: true,
+      panelClass: 'custom-dialog-container', 
+      data: {
+        order: order,
+        isViewMode: true
+      }
+    });
   }
 
   editOrder(order: Order): void {
     console.log('Modifica ordine:', order);
-    // Qui implementerai la logica per modificare l'ordine
+    const dialogRef = this.dialog.open(OrderFormComponent, {
+      width: '1200px',
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      disableClose: true,
+      panelClass: 'custom-dialog-container', 
+      data: {
+        order: order,
+        isEditMode: true
+      }
+    });
   }
 
   getStatusClass(stato: string): string {

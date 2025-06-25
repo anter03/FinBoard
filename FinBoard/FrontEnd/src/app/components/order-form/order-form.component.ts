@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -8,6 +8,8 @@ import { Order } from './../../models/Order';
 import { Portfolio } from './../../models/Portfolio';
 import { Instrument } from './../../models/Instrument';
 import { User } from './../../models/User';
+import { PortfolioService } from '../../services/portfolio.service';
+import { OrderService } from '../../services/order.service';
 
 @Component({
   selector: 'app-order-form',
@@ -19,7 +21,8 @@ import { User } from './../../models/User';
   ]
 })
 export class OrderFormComponent implements OnInit {
-
+  private portfolioService = inject(PortfolioService);
+  private orderService = inject(OrderService);
   // Inputs
   @Input() order: Order | null = null;
   @Input() isEditMode: boolean = false;
@@ -57,17 +60,30 @@ export class OrderFormComponent implements OnInit {
       this.instruments = this.data.instruments || [];
       this.operators = this.data.operators || [];
     }
+
+      this.portfolioService.getAll().subscribe({
+      next: (data) => {
+        this.portfolios = data;
+      },
+      error: (err) => {
+        console.error('Errore nel caricamento dei portfolio:', err);
+      },
+    });
     
     this.initializeForm();
   }
 
+
+
   ngOnInit(): void {
     // Se siamo in modalità edit/view e abbiamo un ordine, popoliamo il form
+          console.log(this.order);
     if ((this.isEditMode || this.isViewMode) && this.order) {
+
       this.orderForm.patchValue({
         id: this.order.id,
         portfolioId: this.order.portfolio?.id,
-        instrumentId: this.order.instrument?.id,
+        isin: this.order.instrument?.isin,
         operatorId: this.order.user?.id,
         side: this.order.side,
         quantity: this.order.quantity,
@@ -105,12 +121,10 @@ export class OrderFormComponent implements OnInit {
     this.orderForm = this.fb.group({
       id: [null],
       portfolioId: [null, [Validators.required]],
-      instrumentId: [null, [Validators.required]],
-      operatorId: [null, [Validators.required]],
+      isin: [null, [Validators.required]],
       side: ['', [Validators.required]],
       quantity: [null, [Validators.required, Validators.min(0.0001)]],
       price: [null, [Validators.min(0)]],
-      status: ['DRAFT'],
       currency: ['EUR', [Validators.required]],
       operationDate: ['', [Validators.required]],
       evaluationDate: ['', [Validators.required]]
@@ -184,42 +198,53 @@ export class OrderFormComponent implements OnInit {
   /**
    * Gestisce il salvataggio dell'ordine
    */
-  onSave(): void {
-    if (this.isViewMode) {
-      this.onClose();
-      return;
-    }
-
-    if (this.isFormValid()) {
-      const formData = this.orderForm.value;
-      
-      // Costruisci l'oggetto Order con le relazioni e seguendo la struttura delle tue interfacce
-      const orderData: Order = {
-        id: formData.id,
-        createdAt: this.order?.createdAt || new Date().toISOString(),
-        deleted: false,
-        executedAt: this.order?.executedAt || null,
-        price: formData.price,
-        quantity: formData.quantity,
-        side: formData.side,
-        status: formData.status,
-        currency: formData.currency,
-        operationDate: new Date(formData.operationDate),
-        evaluationDate: new Date(formData.evaluationDate),
-        instrument: this.instruments.find(i => i.id === formData.instrumentId)!,
-        user: this.operators.find(o => o.id === formData.operatorId)!,
-        portfolio: this.portfolios.find(p => p.id === formData.portfolioId)!
-      };
-
-      this.save.emit(orderData);
-      this.dialogRef.close(orderData);
-    } else {
-      // Marca tutti i campi come touched per mostrare gli errori
-      Object.keys(this.orderForm.controls).forEach(key => {
-        this.orderForm.get(key)?.markAsTouched();
-      });
-    }
+onSave(): void {
+  if (this.isViewMode) {
+    this.onClose();
+    return;
   }
+
+  if (this.isFormValid()) {
+    const formData = this.orderForm.value;
+    
+    // Costruisci l'oggetto Order con le relazioni e seguendo la struttura delle tue interfacce
+    const orderData: Order = {
+      id: formData.id,
+      createdAt: this.order?.createdAt || new Date().toISOString(),
+      deleted: false,
+      executedAt: this.order?.executedAt || null,
+      price: formData.price,
+      quantity: formData.quantity,
+      side: formData.side,
+      status: formData.status,
+      currency: formData.currency,
+      operationDate: new Date(formData.operationDate),
+      evaluationDate: new Date(formData.evaluationDate),
+      instrument: this.instruments.find(i => i.id === formData.instrumentId)!,
+      user: this.operators.find(o => o.id === formData.operatorId)!,
+      portfolio: this.portfolios.find(p => p.id === formData.portfolioId)!
+    };
+
+    // Chiamata al servizio per creare l'ordine
+    this.orderService.createOrder(orderData).subscribe({
+      next: (createdOrder: Order) => {
+        // Successo: emetti l'ordine creato e chiudi il dialog
+        this.save.emit(createdOrder);
+        this.dialogRef.close(createdOrder);
+      },
+      error: (error) => {
+        // Gestisci l'errore (es. mostra un messaggio di errore)
+        console.error('Errore nella creazione dell\'ordine:', error);
+        // Qui potresti mostrare un toast/snackbar con l'errore
+      }
+    });
+  } else {
+    // Marca tutti i campi come touched per mostrare gli errori
+    Object.keys(this.orderForm.controls).forEach(key => {
+      this.orderForm.get(key)?.markAsTouched();
+    });
+  }
+}
 
   /**
    * Gestisce l'annullamento
