@@ -4,20 +4,20 @@
     <div class="header-content">
       <h2 class="form-title">
         <i class="icon-chart-line"></i>
-        {{ isEditMode ? 'Modifica Ordine' : 'Nuovo Ordine' }}
+        {{ getModalTitle() }}
       </h2>
       <button type="button" class="btn btn-secondary small" (click)="onClose()" aria-label="Chiudi">
-      <i class="fa-sharp-duotone fa-solid fa-x" style="--fa-primary-color: #f50000; --fa-secondary-color: #f12c2c;"></i>
+        <i class="fa-sharp-duotone fa-solid fa-x" style="--fa-primary-color: #f50000; --fa-secondary-color: #f12c2c;"></i>
       </button>
     </div>
     <div class="header-actions">
-      <button type="button" class="btn btn-secondary" (click)="onCancel()">
+      <button type="button" class="btn btn-secondary" (click)="onCancel()" *ngIf="!isViewMode">
         <i class="icon-x"></i>
         Annulla
       </button>
-      <button type="button" class="btn btn-success" (click)="onSave()" [disabled]="!isFormValid()">
+      <button type="button" class="btn btn-success" (click)="onSave()" [disabled]="!isFormValid() && !isViewMode">
         <i class="icon-check"></i>
-        {{ isEditMode ? 'Aggiorna' : 'Salva' }}
+        {{ getSaveButtonText() }}
       </button>
     </div>
   </div>
@@ -30,60 +30,69 @@
       <div class="form-section">
         <h3 class="section-title">Dettagli Ordine</h3>
         
-        <div class="form-row">
+        <div class="form-row-triple">
           <div class="form-group">
             <label for="portfolio">Portafoglio *</label>
-            <select id="portfolio" formControlName="portfolio_id" class="form-control">
+            <select id="portfolio" formControlName="portfolioId" class="form-control" [disabled]="isViewMode">
               <option value="">Seleziona Portafoglio</option>
               <option *ngFor="let portfolio of portfolios" [value]="portfolio.id">
                 {{ portfolio.name }}
               </option>
             </select>
-            <div class="error-message" *ngIf="orderForm.get('portfolio_id')?.invalid && orderForm.get('portfolio_id')?.touched">
-              Campo obbligatorio
+            <div class="error-message" *ngIf="hasError('portfolioId')">
+              {{ getErrorMessage('portfolioId') }}
             </div>
           </div>
 
+        
           <div class="form-group">
-            <label for="titolo">Titolo *</label>
-            <select id="titolo" formControlName="titolo_id" class="form-control">
-              <option value="">Seleziona Titolo</option>
-              <option *ngFor="let titolo of titoli" [value]="titolo.id">
-                {{ titolo.name }} ({{ titolo.isin }})
-              </option>
-            </select>
-            <div class="error-message" *ngIf="orderForm.get('titolo_id')?.invalid && orderForm.get('titolo_id')?.touched">
-              Campo obbligatorio
+            <label for="instrument">Isin *</label>
+            <input
+              type="text"
+              id="instrument"
+              formControlName="instrument"
+              class="form-control"
+              placeholder="IT0000000000"
+              step="0.0001"
+              min="0"
+              [readonly]="isViewMode">
+            <div class="error-message" *ngIf="hasError('instrument')">
+              {{ getErrorMessage('instrument') }}
             </div>
           </div>
+       
         </div>
 
-        <div class="form-row">
+        <div class="form-row-triple">
           <div class="form-group">
-            <label for="orderType">Tipo Operazione *</label>
-            <select id="orderType" formControlName="order_type" class="form-control">
+            <label for="side">Tipo Operazione *</label>
+            <select id="side" formControlName="side" class="form-control" [disabled]="isViewMode">
               <option value="">Seleziona Tipo</option>
               <option value="BUY">Acquisto</option>
               <option value="SELL">Vendita</option>
             </select>
-            <div class="error-message" *ngIf="orderForm.get('order_type')?.invalid && orderForm.get('order_type')?.touched">
-              Campo obbligatorio
+            <div class="error-message" *ngIf="hasError('side')">
+              {{ getErrorMessage('side') }}
             </div>
           </div>
 
           <div class="form-group">
-            <label for="status">Stato</label>
-            <select id="status" formControlName="status" class="form-control">
-              <option value="DRAFT">Bozza</option>
-              <option value="PENDING">In Attesa</option>
-              <option value="VALIDATED">Validato</option>
-              <option value="SENT">Inviato</option>
-              <option value="PARTIALLY_FILLED">Parzialmente Eseguito</option>
-              <option value="FILLED">Eseguito</option>
-              <option value="CANCELLED">Annullato</option>
-              <option value="REJECTED">Respinto</option>
+            <label for="currency">Valuta *</label>
+            <select id="currency" formControlName="currency" class="form-control" [disabled]="isViewMode">
+              <option value="EUR">EUR - Euro</option>
+              <option value="USD">USD - Dollaro USA</option>
+              <option value="GBP">GBP - Sterlina</option>
+              <option value="CHF">CHF - Franco Svizzero</option>
+              <option value="JPY">JPY - Yen Giapponese</option>
+              <option value="CAD">CAD - Dollaro Canadese</option>
+              <option value="AUD">AUD - Dollaro Australiano</option>
             </select>
+            <div class="error-message" *ngIf="hasError('currency')">
+              {{ getErrorMessage('currency') }}
+            </div>
           </div>
+
+         
         </div>
       </div>
 
@@ -91,7 +100,7 @@
       <div class="form-section">
         <h3 class="section-title">Quantità e Prezzi</h3>
         
-        <div class="form-row">
+        <div class="form-row-triple">
           <div class="form-group">
             <label for="quantity">Quantità *</label>
             <input
@@ -101,28 +110,13 @@
               class="form-control"
               placeholder="0.0000"
               step="0.0001"
-              min="0">
-            <div class="error-message" *ngIf="orderForm.get('quantity')?.invalid && orderForm.get('quantity')?.touched">
-              Campo obbligatorio
+              min="0"
+              [readonly]="isViewMode">
+            <div class="error-message" *ngIf="hasError('quantity')">
+              {{ getErrorMessage('quantity') }}
             </div>
           </div>
 
-          <div class="form-group">
-            <label for="executedQuantity">Quantità Eseguita</label>
-            <input
-              type="number"
-              id="executedQuantity"
-              formControlName="executed_quantity"
-              class="form-control"
-              placeholder="0.0000"
-              step="0.0001"
-              min="0">
-          </div>
-
-          
-        </div>
-
-        <div class="form-row">
           <div class="form-group">
             <label for="price">Prezzo</label>
             <input
@@ -132,70 +126,46 @@
               class="form-control"
               placeholder="0.0000"
               step="0.0001"
-              min="0">
-          </div>
-
-          <div class="form-group">
-            <label for="countervalue">Controvalore</label>
-            <input
-              type="number"
-              id="countervalue"
-              formControlName="countervalue"
-              class="form-control"
-              placeholder="0.00"
-              step="0.01"
-              min="0">
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="currency">Valuta *</label>
-            <select id="currency" formControlName="currency" class="form-control">
-              <option value="">Seleziona Valuta</option>
-              <option value="EUR">EUR</option>
-              <option value="USD">USD</option>
-              <option value="GBP">GBP</option>
-              <option value="CHF">CHF</option>
-              <option value="JPY">JPY</option>
-            </select>
-            <div class="error-message" *ngIf="orderForm.get('currency')?.invalid && orderForm.get('currency')?.touched">
-              Campo obbligatorio
+              min="0"
+              [readonly]="isViewMode">
+            <div class="error-message" *ngIf="hasError('price')">
+              {{ getErrorMessage('price') }}
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Sezione Date -->
+      <div class="form-section">
+        <h3 class="section-title">Date</h3>
+        
+        <div class="form-row-triple">
+          <div class="form-group">
+            <label for="operationDate">Data Operazione</label>
+            <input
+              type="date"
+              id="operationDate"
+              formControlName="operationDate"
+              class="form-control"
+              [readonly]="isViewMode">
+          </div>
 
           <div class="form-group">
-            <label for="exchangeRate">Tasso di Cambio</label>
+            <label for="evaluationDate">Data Valutazione</label>
             <input
-              type="number"
-              id="exchangeRate"
-              formControlName="exchange_rate_used"
+              type="date"
+              id="evaluationDate"
+              formControlName="evaluationDate"
               class="form-control"
-              placeholder="1.00000000"
-              step="0.00000001"
-              min="0">
+              [readonly]="isViewMode">
           </div>
         </div>
       </div>
 
-      <!-- Sezione Note -->
-      <div class="form-section">
-        <h3 class="section-title">Note</h3>
-        
-        <div class="form-group">
-          <label for="notes">Note Aggiuntive</label>
-          <textarea
-            id="notes"
-            formControlName="notes"
-            class="form-control textarea"
-            rows="4"
-            placeholder="Inserisci note aggiuntive per questo ordine..."></textarea>
-        </div>
-      </div>
-
-      <!-- ID Order (solo in edit mode) -->
-      <div class="form-section" *ngIf="isEditMode">
-        <div class="form-row">
+      <!-- ID Order (solo in edit/view mode) -->
+      <div class="form-section" *ngIf="isEditMode || isViewMode">
+        <h3 class="section-title">Informazioni Sistema</h3>
+        <div class="form-row-single">
           <div class="form-group">
             <label for="orderId">ID Ordine</label>
             <input
@@ -213,6 +183,9 @@
 
   <!-- Loading State -->
   <div class="loading-state" *ngIf="!orderForm">
-    <p>Caricamento form...</p>
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <p>Caricamento form...</p>
+    </div>
   </div>
 </div>

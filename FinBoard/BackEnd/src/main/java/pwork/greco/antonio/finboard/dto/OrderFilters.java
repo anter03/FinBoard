@@ -2,12 +2,14 @@ package pwork.greco.antonio.finboard.dto;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class OrderFilters {
     private String id;
     private String isin;
-    private String quantity;
-    private String portfolio;
+    private BigDecimal quantity;
+    private Long  portfolio;
     private String operationDateFrom;
     private String operationDateTo;
     private String valueDateFrom;

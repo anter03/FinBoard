@@ -1,10 +1,10 @@
-/* Configurazione della modale di Angular Material */
+/* Configurazione della modale di Angular Material - PIÙ GRANDE */
 ::ng-deep .mat-dialog-container {
   padding: 0 !important;
   border-radius: 16px !important;
-  max-width: 90vw !important;
-  width: 800px !important; /* Larghezza fissa più ampia */
-  max-height: 90vh !important;
+  max-width: 95vw !important;
+  width: 1200px !important; /* Larghezza aumentata */
+  max-height: 95vh !important;
   overflow: hidden !important;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
 }
@@ -13,7 +13,7 @@
 .order-form-container {
   background: #f8f9fa;
   padding: 0;
-  max-height: 85vh; /* Altezza massima per permettere lo scroll */
+  max-height: 90vh; /* Altezza massima per permettere lo scroll */
   overflow-y: auto; /* Scroll verticale */
   overflow-x: hidden;
   position: relative;
@@ -55,6 +55,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 16px;
 }
 
 .form-title {
@@ -108,6 +109,11 @@
   transform: translateY(-1px);
 }
 
+.btn-secondary.small {
+  padding: 8px 12px;
+  min-width: auto;
+}
+
 .btn-success {
   background: #10b981;
   color: white;
@@ -121,7 +127,7 @@
 /* Form Content */
 .form-content {
   background: white;
-  padding: 32px;
+  padding: 32px 40px; /* Padding aumentato */
   border-radius: 0 0 16px 16px;
   min-height: 400px;
 }
@@ -132,9 +138,9 @@
 
 /* Form Sections */
 .form-section {
-  margin-bottom: 32px;
+  margin-bottom: 40px; /* Spaziatura aumentata */
   border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 24px;
+  padding-bottom: 32px;
 }
 
 .form-section:last-child {
@@ -147,18 +153,44 @@
   color: #1f2937;
   font-size: 18px;
   font-weight: 600;
-  margin-bottom: 20px;
+  margin-bottom: 24px; /* Spaziatura aumentata */
   padding-bottom: 8px;
   border-bottom: 2px solid #6366f1;
   display: inline-block;
 }
 
-/* Form Layout */
+/* NUOVI LAYOUT PER PIÙ CAMPI PER RIGA */
+
+/* Layout a 3 colonne */
+.form-row-triple {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+/* Layout a 2 colonne */
+.form-row-double {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+/* Layout a 1 colonna */
+.form-row-single {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+/* Backward compatibility */
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .form-group {
@@ -219,6 +251,11 @@ select.form-control {
   appearance: none;
 }
 
+/* Date inputs */
+input[type="date"].form-control {
+  padding: 14px 16px;
+}
+
 /* Error Messages */
 .error-message {
   color: #ef4444;
@@ -254,11 +291,56 @@ select.form-control {
 .status-cancelled { background: #fee2e2; color: #dc2626; }
 .status-rejected { background: #fee2e2; color: #dc2626; }
 
+/* Loading State */
+.loading-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  background: white;
+  border-radius: 0 0 16px 16px;
+}
+
+.loading-content {
+  text-align: center;
+  color: #6b7280;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f4f6;
+  border-top: 3px solid #6366f1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 /* Responsive Design */
-@media (max-width: 900px) {
+@media (max-width: 1400px) {
   ::ng-deep .mat-dialog-container {
     width: 95vw !important;
     max-width: 95vw !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  ::ng-deep .mat-dialog-container {
+    width: 98vw !important;
+    max-width: 98vw !important;
+  }
+  
+  .form-row-triple {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .form-content {
+    padding: 28px 32px;
   }
 }
 
@@ -278,83 +360,4 @@ select.form-control {
     gap: 16px;
     align-items: stretch;
   }
-  
-  .header-actions {
-    justify-content: flex-end;
-    flex-direction: row;
-  }
-  
-  .form-content {
-    padding: 24px 20px;
-  }
-  
-  .form-row {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-  
-  .form-title {
-    font-size: 20px;
-  }
-  
-  .btn {
-    padding: 10px 20px;
-    min-width: 80px;
-  }
 }
-
-@media (max-width: 480px) {
-  .header-actions {
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .btn {
-    justify-content: center;
-    width: 100%;
-  }
-  
-  .form-content {
-    padding: 20px 16px;
-  }
-}
-
-/* Animazioni per migliorare l'esperienza utente */
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.order-form-container {
-  animation: slideIn 0.3s ease-out;
-}
-
-/* Focus management per accessibilità */
-.form-control:focus-visible {
-  outline: 2px solid #6366f1;
-  outline-offset: 2px;
-}
-
-/* Miglioramento visivo per campi obbligatori */
-.form-group label::after {
-  content: " *";
-  color: #ef4444;
-  font-weight: bold;
-}
-
-.form-group:has(input:not([required])) label::after,
-.form-group:has(select:not([required])) label::after,
-.form-group:has(textarea:not([required])) label::after {
-  content: "";
-}
-
-/* Icons (usando emoji come placeholder) */
-.icon-chart-line::before { content: "📈"; margin-right: 4px; }
-.icon-x::before { content: "✕"; }
-.icon-check::before { content: "✓"; }

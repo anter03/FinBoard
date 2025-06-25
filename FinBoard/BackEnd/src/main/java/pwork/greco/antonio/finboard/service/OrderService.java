@@ -9,10 +9,12 @@ import pwork.greco.antonio.finboard.entity.*;
 import pwork.greco.antonio.finboard.repository.*;
 import pwork.greco.antonio.finboard.service.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -144,9 +146,14 @@ public class OrderService {
                 .filter(order -> filters.getId() == null || order.getId().toString().equals(filters.getId()))
                 .filter(order -> filters.getIsin() == null ||
                         (order.getInstrument() != null && filters.getIsin().equalsIgnoreCase(order.getInstrument().getIsin())))
-                .filter(order -> filters.getQuantity() == null || order.getQuantity().toString().equals(filters.getQuantity()))
-                .filter(order -> filters.getPortfolio() == null ||
-                        (order.getPortfolio() != null && order.getPortfolio().getName().equalsIgnoreCase(filters.getPortfolio())))
+                .filter(order -> filters.getQuantity() == null || order.getQuantity().equals((BigDecimal)filters.getQuantity()))
+
+                .filter(order ->
+                        filters.getPortfolio() == null ||
+                                (order.getPortfolio() != null &&
+                                        Objects.equals(order.getPortfolio().getId(), filters.getPortfolio()))
+                )
+
                 .filter(order -> filterByOperationDateFrom(order, filters.getOperationDateFrom()))
                 .filter(order -> filterByOperationDateTo(order, filters.getOperationDateTo()))
                 .filter(order -> filterByValueDateFrom(order, filters.getValueDateFrom()))

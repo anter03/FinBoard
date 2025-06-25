@@ -51,7 +51,7 @@ filters: OrderFilters = {
 
   portfolioOptions: Portfolio[] = [];
 
-  statoOptions = ['Eseguito', 'Pending', 'Annullato'];
+  statoOptions = ['EXECUTED', 'PENDING', 'CANCELLED'];
   divisaOptions = ['EUR', 'USD', 'GBP', 'JPY'];
 
   constructor(private dialog: MatDialog) { }
@@ -166,11 +166,11 @@ newOrder(): void {
 
   getStatusClass(stato: string): string {
     switch (stato.toLowerCase()) {
-      case 'eseguito':
+      case 'EXECUTED':
         return 'status-success';
-      case 'pending':
+      case 'PENDING':
         return 'status-pending';
-      case 'annullato':
+      case 'CANCELLED':
         return 'status-cancelled';
       default:
         return 'status-default';
