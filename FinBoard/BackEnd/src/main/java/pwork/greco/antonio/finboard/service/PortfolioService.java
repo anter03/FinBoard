@@ -88,8 +88,8 @@ public class PortfolioService {
         if (user == null && company == null)
             throw new RuntimeException("Either userId or companyId must be provided");
 
-        if (user != null && company != null)
-            throw new RuntimeException("Only one of userId or companyId can be provided");
+        //if (user != null && company != null)
+        //    throw new RuntimeException("Only one of userId or companyId can be provided");
 
         return Portfolio.builder()
                 .id(dto.getId())

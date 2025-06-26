@@ -5,12 +5,9 @@ import { OrderFormComponent } from '../../components/order-form/order-form.compo
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Inject } from '@angular/core'
 import { HttpClientModule } from '@angular/common/http';
-//import { PortfolioService } from '../../services/portfolio.service';
-import { Portfolio } from '../../models/Portfolio';
-import { Order} from '../../models/Order';
-import { OrderService } from '../../services/order.service';
-import { PortfolioService } from '../../services/portfolio.service';
-import { OrderFilters } from '../../models/order-filters';
+import { Order,OrderFilters,Portfolio} from '../../models/';
+import { OrderService,PortfolioService } from '../../services/';
+import { C } from '@angular/cdk/keycodes';
 
 
 
@@ -60,6 +57,7 @@ filters: OrderFilters = {
     this.filteredOrders = [...this.orders];
 
 
+    console.log(this.filteredOrders);
     this.portfolioService.getAll().subscribe({
       next: (data) => {
         this.portfolioOptions = data;
@@ -155,11 +153,11 @@ newOrder(): void {
 }
 
   viewOrder(order: Order): void {
-    console.log('Creazione nuovo ordine');
-
+    console.log('Visualizza ordine');
+  console.log(order);
     const dialogRef = this.dialog.open(OrderFormComponent, {
-      width: '1200px',
-      maxWidth: '90vw',
+      width: '1600px',
+      maxWidth: '250vw',
       maxHeight: '90vh',
       disableClose: true,
       panelClass: 'custom-dialog-container', 

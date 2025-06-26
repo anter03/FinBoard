@@ -49,6 +49,7 @@ public class OrderService {
             entity.setCreatedAt(LocalDateTime.now());
         if (entity.getDeleted() == null)
             entity.setDeleted(false);
+        entity.setStatus("DRAFT");
         return toDto(orderRepository.save(entity));
     }
 

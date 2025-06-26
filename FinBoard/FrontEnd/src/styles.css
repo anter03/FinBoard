@@ -14,3 +14,12 @@ body {
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.custom-dialog-container {
+  width: 100% !important;
+  max-width: 90vw !important;
+  max-height: 100vh !important;
+  margin-left: 85px !important;
+  padding: 0 !important;
+  
+}
