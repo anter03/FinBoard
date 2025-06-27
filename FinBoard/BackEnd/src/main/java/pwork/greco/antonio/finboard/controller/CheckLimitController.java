@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pwork.greco.antonio.finboard.dto.CheckLimitDto;
+import pwork.greco.antonio.finboard.dto.*;
 import pwork.greco.antonio.finboard.service.CheckLimitService;
 
 import java.util.List;

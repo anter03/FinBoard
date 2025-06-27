@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Instrument } from '../models/Instrument'; // Assicurati che esista questo model
+import { OrderValidationResponse } from '../models/OrderValidationResponse';
 
 @Injectable({
   providedIn: 'root',
@@ -22,9 +23,14 @@ export class InstrumentService {
   }
 
   // POST nuovo strumento
-  createInstrument(instrument: Instrument): Observable<Instrument> {
-    return this.http.post<Instrument>(this.apiUrl, instrument);
-  }
+  //createInstrument(instrument: Instrument): Observable<Instrument> {
+  //  return this.http.post<Instrument>(this.apiUrl, instrument);
+  //}
+
+  createOrder(orderData: any): Observable<OrderValidationResponse> {
+    return this.http.post<OrderValidationResponse>('/api/order', orderData);
+ }
+
 
   // PUT modifica strumento
   updateInstrument(id: number, instrument: Instrument): Observable<Instrument> {

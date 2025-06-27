@@ -4,8 +4,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { User,Instrument,Portfolio,Order } from './../../models/';
-import { OrderService, UserService,PortfolioService,InstrumentService } from '../../services';
+import { User, Instrument, Portfolio, Order } from './../../models/';
+import { OrderService, UserService, PortfolioService, InstrumentService } from '../../services';
+import { OrderValidationResponse } from '../../models/OrderValidationResponse';
 
 
 @Component({
@@ -147,7 +148,7 @@ export class OrderFormComponent implements OnInit {
     //  operationDate: ['', [Validators.required]],
     //  evaluationDate: ['', [Validators.required]]
     //});
-        this.orderForm = this.fb.group({
+    this.orderForm = this.fb.group({
       id: [null],
       portfolioId: [null, null],
       isin: [null, null],
@@ -239,21 +240,21 @@ export class OrderFormComponent implements OnInit {
       // Costruisci l'oggetto Order con le relazioni e seguendo la struttura delle tue interfacce
       const selectedInstrument = this.instruments.find(i => i.isin === formData.isin);
       //const selectedUser = this.operators.find(o => o.id === formData.operatorId);
-      const selectedUser = this.operators.find(o => o.id === 1);
+      const selectedUser = this.operators.find(o => o.id === 2);
       const selectedPortfolio = this.portfolios.find(p => p.id === +formData.portfolioId);
 
       if (!selectedUser) {
-         console.log('operators', this.operators);
+        console.log('operators', this.operators);
         return;
       }
       if (!selectedPortfolio) {
-         console.log('Portfolios disponibili:', this.portfolios);
-         console.log('+formData.portfolioId:', +formData.portfolioId);
+        console.log('Portfolios disponibili:', this.portfolios);
+        console.log('+formData.portfolioId:', +formData.portfolioId);
         return;
       }
       if (!selectedInstrument) {
-         console.log('this.instruments:', this.instruments);
-         console.log('ormData.isin:', formData.isin);
+        console.log('this.instruments:', this.instruments);
+        console.log('ormData.isin:', formData.isin);
         return;
       }
 
@@ -282,21 +283,34 @@ export class OrderFormComponent implements OnInit {
       };
 
 
-      console.log("Inserimento ordine:");
-      console.log(orderData);
-      // Chiamata al servizio per creare l'ordine
+    
       this.orderService.createOrder(orderData).subscribe({
-        next: (createdOrder: Order) => {
-          // Successo: emetti l'ordine creato e chiudi il dialog
-          this.save.emit(createdOrder);
-          this.dialogRef.close(createdOrder);
+        next: (response: OrderValidationResponse) => {
+          console.log('Risposta ricevuta:', response);
+
+          if (!response.valid) {
+            console.warn('Ordine non valido:', response.errorMessages);
+            response.checkResults.forEach((res, i) => {
+              console.warn(`Controllo #${i + 1}:`, res);
+            });
+
+            // Mostra errore a utente (es: snackbar)
+            // NIENTE emit o close
+            return;
+          }
+
+          // Se valido, puoi ora emettere o chiamare un'azione successiva
+          // Ma attenzione: `response` NON è un Order, quindi devi decidere dove crearlo
+          console.log('Ordine valido, ma ora devi inviare la richiesta vera per salvarlo.');
         },
         error: (error) => {
-          // Gestisci l'errore (es. mostra un messaggio di errore)
           console.error('Errore nella creazione dell\'ordine:', error);
-          // Qui potresti mostrare un toast/snackbar con l'errore
         }
       });
+
+
+
+
     } else {
       // Marca tutti i campi come touched per mostrare gli errori
       Object.keys(this.orderForm.controls).forEach(key => {

@@ -1,0 +1,56 @@
+// check-limit-viewer.component.html
+<div class="validation-container" *ngIf="validationResponse">
+  <!-- Header con stato generale -->
+  <div class="validation-header" [class.valid]="validationResponse.valid" [class.invalid]="!validationResponse.valid">
+    <div class="header-content">
+      <span class="status-icon" [innerHTML]="validationResponse.valid ? '✅' : '❌'"></span>
+      <h3 class="header-title">
+        {{ validationResponse.valid ? 'Controlli Superati' : 'Controlli Falliti' }}
+      </h3>
+      <span class="check-count">
+        {{ getPassedChecks() }}/{{ validationResponse.checkResults.length }} controlli superati
+      </span>
+    </div>
+  </div>
+
+  <!-- Lista dei controlli -->
+  <div class="checks-list">
+    <div class="check-item" 
+         *ngFor="let check of validationResponse.checkResults" 
+         [class.valid]="check.valid" 
+         [class.invalid]="!check.valid">
+      
+      <div class="check-status">
+        <span class="status-icon" [innerHTML]="check.valid ? '✅' : '❌'"></span>
+      </div>
+      
+      <div class="check-content">
+        <div class="check-header">
+          <span class="rule-id">Regola #{{ check.appliedRule.id }}</span>
+          <span class="check-status-text" [class.valid]="check.valid" [class.invalid]="!check.valid">
+            {{ check.valid ? 'SUPERATO' : 'FALLITO' }}
+          </span>
+        </div>
+        
+        <div class="rule-description" *ngIf="check.appliedRule.description">
+          {{ check.appliedRule.description }}
+        </div>
+        
+        <div class="error-message" *ngIf="!check.valid && check.errorMessage">
+          <span class="error-icon">⚠️</span>
+          {{ check.errorMessage }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messaggi di errore globali -->
+  <div class="global-errors" *ngIf="validationResponse.errorMessages.length > 0">
+    <h4>Errori Generali:</h4>
+    <ul>
+      <li *ngFor="let error of validationResponse.errorMessages" class="error-item">
+        {{ error }}
+      </li>
+    </ul>
+  </div>
+</div>

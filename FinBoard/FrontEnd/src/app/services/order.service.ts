@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Order } from '../models/Order';
 import { OrderFilters } from '../models/order-filters';
+import { OrderValidationResponse } from '../models/OrderValidationResponse';
 
 @Injectable({
   providedIn: 'root',
@@ -23,9 +24,12 @@ export class OrderService {
   }
 
   // POST nuovo ordine
-  createOrder(order: Order): Observable<Order> {
-    return this.http.post<Order>(this.apiUrl, order);
-  }
+  //createOrder(order: Order): Observable<Order> {
+  //  return this.http.post<Order>(this.apiUrl, order);
+  //}
+  createOrder(orderData: Order): Observable<OrderValidationResponse> {
+  return this.http.post<OrderValidationResponse>(this.apiUrl, orderData);;
+}
 
   // PUT modifica ordine
   updateOrder(id: number, order: Order): Observable<Order> {

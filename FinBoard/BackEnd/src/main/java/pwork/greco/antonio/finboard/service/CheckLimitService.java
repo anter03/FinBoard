@@ -71,7 +71,7 @@ public class CheckLimitService {
 
     // Mapping manuale
 
-    private CheckLimitDto toDto(CheckLimit entity) {
+    public CheckLimitDto toDto(CheckLimit entity) {
         return CheckLimitDto.builder()
                 .id(entity.getId())
                 .profileId(entity.getProfileId())
@@ -86,7 +86,7 @@ public class CheckLimitService {
                 .build();
     }
 
-    private CheckLimit toEntity(CheckLimitDto dto) {
+    public CheckLimit toEntity(CheckLimitDto dto) {
         return CheckLimit.builder()
                 .id(dto.getId())
                 .profileId(dto.getProfileId())
