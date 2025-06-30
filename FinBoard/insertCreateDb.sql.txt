@@ -180,4 +180,10 @@ SELECT 'check_limit', COUNT(*) FROM finboard.dbo.check_limit
 UNION ALL
 SELECT 'order', COUNT(*) FROM finboard.dbo.[order];
 
+
+
 PRINT 'Reset e popolamento database finBoard completato con successo!';
+
+INSERT INTO finboard.dbo.check_limit
+(id, action_type, country, created_at, description, instrument_type_id, limit_type, limit_value, profile_id, rating)
+VALUES(1, N'LIMIT', N'Italy', '2024-01-15 16:00:00.000', N'Limite massimo acquisto singolo per azioni italiane', 1, N'TOTAL', 1000000.0000, 3, NULL);

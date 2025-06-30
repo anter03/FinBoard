@@ -2,12 +2,13 @@
   <!-- Header -->
   <div class="header-section">
     <div class="header-title">
-      <i class="icon-bell"></i>
-      <h1>Centro Messaggi</h1>
-      <span class="unread-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+      <i class="icon-clipboard"></i>
+      <h1>Log Controlli</h1>
+      <span class="valid-badge" *ngIf="validCount > 0">{{ validCount }} OK</span>
+      <span class="invalid-badge" *ngIf="invalidCount > 0">{{ invalidCount }} KO</span>
     </div>
     <div class="header-subtitle">
-      Gestisci le tue notifiche e messaggi di sistema
+      Visualizza e gestisci i log dei controlli di validazione
     </div>
   </div>
 
@@ -16,7 +17,9 @@
     <div class="filters-header">
       <i class="icon-filter"></i>
       <span>Filtri di Ricerca</span>
-      <button class="clear-filters-btn" (click)="clearFilters()" *ngIf="selectedTipo !== 'tutti' || selectedStato !== 'tutti' || searchTerm || dataInizio || dataFine">
+      <button class="clear-filters-btn" 
+              (click)="clearFilters()" 
+              *ngIf="selectedValid !== 'tutti' || searchTerm || searchId || searchRuleDescription || dataInizio || dataFine">
         <i class="icon-x"></i>
         Pulisci Filtri
       </button>
@@ -26,35 +29,33 @@
       <!-- Prima riga filtri -->
       <div class="filter-row">
         <div class="filter-group">
-          <label>ID/Titolo</label>
+          <label>ID Log</label>
           <input 
             type="text" 
-            [(ngModel)]="searchTerm" 
+            [(ngModel)]="searchId" 
             (input)="onFilterChange()"
-            placeholder="Cerca per ID o titolo..."
+            placeholder="Cerca per ID..."
             class="filter-input">
         </div>
 
         <div class="filter-group">
-          <label>Tipo</label>
-          <select 
-            [(ngModel)]="selectedTipo" 
-            (change)="onFilterChange()"
-            class="filter-select">
-            <option *ngFor="let tipo of tipiNotifica" [value]="tipo.value">
-              {{ tipo.label }}
-            </option>
-          </select>
+          <label>Descrizione Regola</label>
+          <input 
+            type="text" 
+            [(ngModel)]="searchRuleDescription" 
+            (input)="onFilterChange()"
+            placeholder="Cerca per descrizione..."
+            class="filter-input">
         </div>
 
         <div class="filter-group">
-          <label>Stato</label>
+          <label>Risultato</label>
           <select 
-            [(ngModel)]="selectedStato" 
+            [(ngModel)]="selectedValid" 
             (change)="onFilterChange()"
             class="filter-select">
-            <option *ngFor="let stato of statiNotifica" [value]="stato.value">
-              {{ stato.label }}
+            <option *ngFor="let option of validOptions" [value]="option.value">
+              {{ option.label }}
             </option>
           </select>
         </div>
@@ -62,6 +63,16 @@
 
       <!-- Seconda riga filtri -->
       <div class="filter-row">
+        <div class="filter-group">
+          <label>Ricerca Generale</label>
+          <input 
+            type="text" 
+            [(ngModel)]="searchTerm" 
+            (input)="onFilterChange()"
+            placeholder="Cerca in messaggio di errore o testo regola..."
+            class="filter-input">
+        </div>
+
         <div class="filter-group">
           <label>Data Inizio</label>
           <input 
@@ -79,11 +90,14 @@
             (change)="onFilterChange()"
             class="filter-input">
         </div>
+      </div>
 
+      <!-- Terza riga con bottone -->
+      <div class="filter-row">
         <div class="filter-group search-button-group">
           <button class="search-btn" (click)="onFilterChange()">
             <i class="icon-search"></i>
-            Cerca Messaggi
+            Cerca Log
           </button>
         </div>
       </div>
@@ -96,13 +110,21 @@
       <div class="results-info">
         <i class="icon-list"></i>
         <span>Risultati della Ricerca</span>
-        <span class="results-count">({{ filteredNotifications.length }} messaggi trovati)</span>
+        <span class="results-count">({{ filteredLogs.length }} log trovati)</span>
       </div>
-      <div class="results-actions">
-        <button class="action-btn secondary" (click)="markAllAsRead()" *ngIf="unreadCount > 0">
-          <i class="icon-check-circle"></i>
-          Segna Tutti come Letti
-        </button>
+      <div class="results-stats">
+        <div class="stat-item">
+          <span class="stat-label">Totale:</span>
+          <span class="stat-value">{{ totalLogs }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Validi:</span>
+          <span class="stat-value valid">{{ validCount }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Non Validi:</span>
+          <span class="stat-value invalid">{{ invalidCount }}</span>
+        </div>
       </div>
     </div>
 
@@ -111,88 +133,79 @@
         <thead>
           <tr>
             <th>ID</th>
-            <th>TIPO</th>
-            <th>TITOLO</th>
-            <th>MESSAGGIO</th>
-            <th>DATA CREAZIONE</th>
-            <th>PRIORITÀ</th>
-            <th>STATO</th>
-            <th>AZIONI</th>
+            <th>RISULTATO</th>
+            <th>REGOLA</th>
+            <th>DESCRIZIONE REGOLA</th>
+            <th>MESSAGGIO ERRORE</th>
+            <th>TIMESTAMP</th>
+               <!-- <th>AZIONI</th>-->
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let notification of filteredNotifications" 
-              [class.unread]="!notification.letto"
-              [class.read]="notification.letto">
+          <tr *ngFor="let log of filteredLogs" 
+              [class.valid-row]="log.valid"
+              [class.invalid-row]="!log.valid">
             
             <td class="id-cell">
-              <span class="notification-id">{{ notification.id }}</span>
+              <span class="log-id">{{ log.id }}</span>
             </td>
 
-            <td class="type-cell">
-              <div class="type-badge" [class]="'type-' + notification.tipo">
-                <i [class]="'icon-' + getTipoIcon(notification.tipo)"></i>
-                <span>{{ notification.tipo | titlecase }}</span>
+            <td class="result-cell">
+              <div class="result-badge" [class]="getValidClass(log.valid)">
+                <i [class]="'icon-' + getValidIcon(log.valid)"></i>
+                <span>{{ log.valid ? 'VALIDO' : 'NON VALIDO' }}</span>
               </div>
             </td>
 
-            <td class="title-cell">
-              <div class="notification-title">
-                {{ notification.titolo }}
+            <td class="rule-cell">
+              <div class="rule-info">
+                <div class="rule-id">ID: {{ log.ruleId }}</div>
+                <div class="rule-text">{{ log.ruleText }}</div>
               </div>
             </td>
 
-            <td class="message-cell">
-              <div class="notification-message">
-                {{ notification.messaggio }}
+            <td class="description-cell">
+              <div class="rule-description">
+                {{ log.ruleDescription }}
               </div>
             </td>
 
-            <td class="date-cell">
-              {{ formatDate(notification.dataCreazione) }}
+            <td class="error-cell">
+              <div class="error-message" *ngIf="!log.valid && log.errorMessage">
+                {{ log.errorMessage }}
+              </div>
+              <div class="no-error" *ngIf="log.valid">
+                <i class="icon-check"></i>
+                Nessun errore
+              </div>
             </td>
 
-            <td class="priority-cell">
-              <span class="priority-badge" [class]="getPrioritaClass(notification.priorita)">
-                {{ notification.priorita | uppercase }}
-              </span>
+            <td class="timestamp-cell">
+              {{ formatDate(log.timestamp) }}
             </td>
-
-            <td class="status-cell">
-              <span class="status-badge" [class]="notification.letto ? 'read' : 'unread'">
-                {{ notification.letto ? 'Letto' : 'Non Letto' }}
-              </span>
-            </td>
-
+    <!-- Terza riga con bottone 
             <td class="actions-cell">
               <div class="action-buttons">
                 <button class="action-icon-btn view" title="Visualizza dettagli">
                   <i class="icon-eye"></i>
                 </button>
                 
-                <button 
-                  class="action-icon-btn" 
-                  [class.mark-read]="!notification.letto"
-                  [class.mark-unread]="notification.letto"
-                  [title]="notification.letto ? 'Segna come non letto' : 'Segna come letto'"
-                  (click)="notification.letto ? markAsUnread(notification.id) : markAsRead(notification.id)">
-                  <i [class]="notification.letto ? 'icon-mail' : 'icon-mail-open'"></i>
-                </button>
-                
-                <button class="action-icon-btn delete" (click)="deleteNotification(notification.id)" title="Elimina">
+                <button class="action-icon-btn delete" 
+                        (click)="deleteLog(log.id)" 
+                        title="Elimina log">
                   <i class="icon-trash"></i>
                 </button>
               </div>
-            </td>
+            </td>-->
           </tr>
         </tbody>
       </table>
 
       <!-- Stato vuoto -->
-      <div class="empty-state" *ngIf="filteredNotifications.length === 0">
-        <i class="icon-bell-off"></i>
-        <h3>Nessun messaggio trovato</h3>
-        <p>Non ci sono messaggi che corrispondono ai filtri selezionati.</p>
+      <div class="empty-state" *ngIf="filteredLogs.length === 0">
+        <i class="icon-clipboard-x"></i>
+        <h3>Nessun log trovato</h3>
+        <p>Non ci sono log che corrispondono ai filtri selezionati.</p>
       </div>
     </div>
   </div>

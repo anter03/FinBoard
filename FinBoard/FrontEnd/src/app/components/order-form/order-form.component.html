@@ -9,13 +9,35 @@
       <button type="button" class="btn btn-secondary small" (click)="onClose()" aria-label="Chiudi">
         <i class="fa-sharp-duotone fa-solid fa-x" style="--fa-primary-color: #f50000; --fa-secondary-color: #f12c2c;"></i>
       </button>
+    </div><!-- SEZIONE CONTROLLI PRE-ACQUISTO -->
+    <div class="validation-section" *ngIf="shouldShowValidation()">
+      <app-check-limit-viewer 
+        [validationResponse]="validationResponse">
+      </app-check-limit-viewer>
     </div>
+    
     <div class="header-actions">
+      <!-- Pulsante per eseguire controlli -->
+      <button type="button" 
+              class="btn btn-info" 
+              (click)="validateOrder()" 
+              [disabled]="!canValidate() || isValidating"
+              *ngIf="!isViewMode">
+        <i class="icon-check-circle" *ngIf="!isValidating"></i>
+        <i class="icon-loader animate-spin" *ngIf="isValidating"></i>
+        {{ isValidating ? 'Validazione...' : 'Verifica Controlli' }}
+      </button>
+      
       <button type="button" class="btn btn-secondary" (click)="onCancel()" *ngIf="!isViewMode">
         <i class="icon-x"></i>
         Annulla
       </button>
-      <button type="button" class="btn btn-success" (click)="onSave()" [disabled]="!isFormValid() && !isViewMode">
+      
+      <!-- Pulsante salva - ora considera anche la validazione -->
+      <button type="button" 
+              class="btn btn-success" 
+              (click)="onSave()" 
+              [disabled]="!canSave()">
         <i class="icon-check"></i>
         {{ getSaveButtonText() }}
       </button>

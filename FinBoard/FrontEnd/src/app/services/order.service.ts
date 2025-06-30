@@ -24,11 +24,11 @@ export class OrderService {
   }
 
   // POST nuovo ordine
-  //createOrder(order: Order): Observable<Order> {
-  //  return this.http.post<Order>(this.apiUrl, order);
-  //}
+    //createOrder(order: Order): Observable<Order> {
+    //  return this.http.post<Order>(this.apiUrl, order);
+    //}
   createOrder(orderData: Order): Observable<OrderValidationResponse> {
-  return this.http.post<OrderValidationResponse>(this.apiUrl, orderData);;
+  return this.http.post<OrderValidationResponse>(this.apiUrl + '/create', orderData);;
 }
 
   // PUT modifica ordine
@@ -50,5 +50,10 @@ export class OrderService {
  filterOrders(filters: OrderFilters): Observable<Order[]> {
    return this.http.post<Order[]>(`${this.apiUrl}/filter`, filters);
  }
+
+  // Metodo per SOLO validazione (già esiste)
+  validateOrder(order: Order): Observable<OrderValidationResponse> {
+    return this.http.post<OrderValidationResponse>(`${this.apiUrl}/validate`, order);
+  }
 
 }

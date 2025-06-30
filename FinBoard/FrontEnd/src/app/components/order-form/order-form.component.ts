@@ -7,6 +7,9 @@ import { CommonModule } from '@angular/common';
 import { User, Instrument, Portfolio, Order } from './../../models/';
 import { OrderService, UserService, PortfolioService, InstrumentService } from '../../services';
 import { OrderValidationResponse } from '../../models/OrderValidationResponse';
+import { CheckLimitViewerComponent } from '../../components/check-limit-viewer/check-limit-viewer.component';
+
+
 
 
 @Component({
@@ -15,7 +18,8 @@ import { OrderValidationResponse } from '../../models/OrderValidationResponse';
   styleUrls: ['./order-form.component.css'],
   imports: [
     ReactiveFormsModule,
-    CommonModule
+    CommonModule,
+    CheckLimitViewerComponent
   ]
 })
 export class OrderFormComponent implements OnInit {
@@ -23,7 +27,8 @@ export class OrderFormComponent implements OnInit {
   private orderService = inject(OrderService);
   private userService = inject(UserService);
   private instrumentService = inject(InstrumentService);
-
+  validationResponse: OrderValidationResponse | null = null;
+  isValidating = false;
   // Inputs
   @Input() order: Order | null = null;
   @Input() isEditMode: boolean = false;
@@ -225,99 +230,6 @@ export class OrderFormComponent implements OnInit {
     this.dialogRef.close();
   }
 
-  /**
-   * Gestisce il salvataggio dell'ordine
-   */
-  onSave(): void {
-    if (this.isViewMode) {
-      this.onClose();
-      return;
-    }
-
-    if (this.isFormValid()) {
-      const formData = this.orderForm.value;
-
-      // Costruisci l'oggetto Order con le relazioni e seguendo la struttura delle tue interfacce
-      const selectedInstrument = this.instruments.find(i => i.isin === formData.isin);
-      //const selectedUser = this.operators.find(o => o.id === formData.operatorId);
-      const selectedUser = this.operators.find(o => o.id === 2);
-      const selectedPortfolio = this.portfolios.find(p => p.id === +formData.portfolioId);
-
-      if (!selectedUser) {
-        console.log('operators', this.operators);
-        return;
-      }
-      if (!selectedPortfolio) {
-        console.log('Portfolios disponibili:', this.portfolios);
-        console.log('+formData.portfolioId:', +formData.portfolioId);
-        return;
-      }
-      if (!selectedInstrument) {
-        console.log('this.instruments:', this.instruments);
-        console.log('ormData.isin:', formData.isin);
-        return;
-      }
-
-
-
-      if (!selectedInstrument || !selectedUser || !selectedPortfolio) {
-        console.error('Errore: uno o più oggetti relazionati non trovati');
-        return;
-      }
-
-      const orderData: Order = {
-        id: formData.id,
-        createdAt: this.order?.createdAt || new Date().toISOString(),
-        deleted: false,
-        executedAt: this.order?.executedAt || null,
-        price: formData.price,
-        quantity: formData.quantity,
-        side: formData.side,
-        status: formData.status,
-        currency: formData.currency,
-        operationDate: new Date(formData.operationDate),
-        evaluationDate: new Date(formData.evaluationDate),
-        instrument: selectedInstrument,
-        user: selectedUser,
-        portfolio: selectedPortfolio
-      };
-
-
-    
-      this.orderService.createOrder(orderData).subscribe({
-        next: (response: OrderValidationResponse) => {
-          console.log('Risposta ricevuta:', response);
-
-          if (!response.valid) {
-            console.warn('Ordine non valido:', response.errorMessages);
-            response.checkResults.forEach((res, i) => {
-              console.warn(`Controllo #${i + 1}:`, res);
-            });
-
-            // Mostra errore a utente (es: snackbar)
-            // NIENTE emit o close
-            return;
-          }
-
-          // Se valido, puoi ora emettere o chiamare un'azione successiva
-          // Ma attenzione: `response` NON è un Order, quindi devi decidere dove crearlo
-          console.log('Ordine valido, ma ora devi inviare la richiesta vera per salvarlo.');
-        },
-        error: (error) => {
-          console.error('Errore nella creazione dell\'ordine:', error);
-        }
-      });
-
-
-
-
-    } else {
-      // Marca tutti i campi come touched per mostrare gli errori
-      Object.keys(this.orderForm.controls).forEach(key => {
-        this.orderForm.get(key)?.markAsTouched();
-      });
-    }
-  }
 
   /**
    * Gestisce l'annullamento
@@ -355,4 +267,177 @@ export class OrderFormComponent implements OnInit {
     if (this.isEditMode) return 'Aggiorna';
     return 'Salva';
   }
+
+  // Determina quando mostrare la sezione validazione
+  shouldShowValidation(): boolean {
+    return this.validationResponse !== null && !this.isViewMode;
+  }
+
+  // Controlla se si può eseguire la validazione
+  canValidate(): boolean {
+    return this.isFormValid() && !this.isViewMode;
+  }
+
+  // Controlla se si può salvare (form valido + controlli superati)
+  canSave(): boolean {
+    if (this.isViewMode) return false;
+    
+    const formValid = this.isFormValid();
+    const checksValid = this.validationResponse?.valid ?? true; // Se non ci sono controlli, considera valido
+    
+    return formValid && checksValid;
+  }
+
+ // Esegue la validazione chiamando il backend
+validateOrder(): void {
+  if (!this.canValidate()) return;
+
+  this.isValidating = true;
+
+  const formData = this.orderForm.value;
+
+  // Costruzione oggetti relazionati
+  const selectedInstrument = this.instruments.find(i => i.isin === formData.isin);
+  const selectedUser = this.operators.find(o => o.id === 2); // Hardcoded
+  const selectedPortfolio = this.portfolios.find(p => p.id === +formData.portfolioId);
+
+  // Costruzione ordine anche in view mode
+  const orderData: Order = {
+    id: formData.id,
+    createdAt: this.order?.createdAt || new Date().toISOString(),
+    deleted: false,
+    executedAt: this.order?.executedAt || null,
+    price: formData.price,
+    quantity: formData.quantity,
+    side: formData.side,
+    status: formData.status,
+    currency: formData.currency,
+    operationDate: new Date(formData.operationDate),
+    evaluationDate: new Date(formData.evaluationDate),
+    instrument: selectedInstrument!,
+    user: selectedUser!,
+    portfolio: selectedPortfolio!
+  };
+
+  // Se è in view mode chiude senza validare ma dopo aver costruito l'ordine
+  if (this.isViewMode) {
+    this.onClose();
+    return;
+  }
+
+  if (!this.isFormValid()) {
+    // Marca i campi per mostrare gli errori
+    Object.keys(this.orderForm.controls).forEach(key => {
+      this.orderForm.get(key)?.markAsTouched();
+    });
+    this.isValidating = false;
+    return;
+  }
+
+  // Se tutto è ok, si procede con la validazione dell'ordine
+  this.orderService.validateOrder(orderData).subscribe({
+    next: (response: OrderValidationResponse) => {
+      this.validationResponse = response;
+      console.log('Validazione completata:', response);
+    },
+    error: (error) => {
+      console.error('Errore durante la validazione:', error);
+      this.validationResponse = null;
+    },
+    complete: () => {
+      this.isValidating = false;
+    }
+  });
+}
+
+
+
+/**
+ * Gestisce il salvataggio dell'ordine (versione unificata)
+ */
+onSave(): void {
+  if (this.isViewMode) {
+    this.onClose();
+    return;
+  }
+
+  // Ignora la validazione del form Angular e procede comunque
+  const formData = this.orderForm.value;
+
+  // Costruisci l'oggetto Order con le relazioni e valori hardcoded
+  const selectedInstrument = this.instruments.find(i => i.isin === formData.isin);
+  const selectedUser = this.operators.find(o => o.id === 2); // Valore hardcoded mantenuto
+  const selectedPortfolio = this.portfolios.find(p => p.id === +formData.portfolioId);
+
+  // Controllo esistenza oggetti relazionati
+  if (!selectedUser) {
+    console.log('operators', this.operators);
+    return;
+  }
+  if (!selectedPortfolio) {
+    console.log('Portfolios disponibili:', this.portfolios);
+    console.log('+formData.portfolioId:', +formData.portfolioId);
+    return;
+  }
+  if (!selectedInstrument) {
+    console.log('this.instruments:', this.instruments);
+    console.log('formData.isin:', formData.isin);
+    return;
+  }
+
+  const orderData: Order = {
+    id: formData.id,
+    createdAt: this.order?.createdAt || new Date().toISOString(),
+    deleted: false,
+    executedAt: this.order?.executedAt || null,
+    price: formData.price,
+    quantity: formData.quantity,
+    side: formData.side,
+    status: formData.status,
+    currency: formData.currency,
+    operationDate: new Date(formData.operationDate),
+    evaluationDate: new Date(formData.evaluationDate),
+    instrument: selectedInstrument,
+    user: selectedUser,
+    portfolio: selectedPortfolio
+  };
+
+  // Chiama il backend per la validazione (mantenuto)
+
+  if(this.isEditMode){
+    this.orderService.updateOrder(orderData.id,orderData)
+
+    this.onClose();
+    return;
+  }
+   
+  this.orderService.createOrder(orderData).subscribe({
+    next: (response: OrderValidationResponse) => {
+      console.log('Risposta ricevuta:', response);
+
+      if (!response.valid) {
+        console.warn('Ordine non valido:', response.errorMessages);
+        response.checkResults.forEach((res, i) => {
+          console.warn(`Controllo #${i + 1}:`, res);
+        });
+
+        // Mostra errore a utente (es: snackbar)
+        // NIENTE emit o close
+        return;
+      }
+
+      // Se valido, puoi ora emettere o chiamare un'azione successiva
+      console.log('Ordine valido.');
+      
+      // Emetti il salvataggio e chiudi
+      this.save.emit(orderData);
+      this.onClose();
+    },
+    error: (error) => {
+      console.error('Errore nella creazione dell\'ordine:', error.toISOString);
+    }
+  });
+}
+
+
 }

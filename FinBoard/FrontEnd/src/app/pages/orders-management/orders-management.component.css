@@ -352,6 +352,16 @@
   transform: scale(1.1);
 }
 
+.delete-btn {
+  background: #fbcdcd;
+  color: #f76659;
+}
+
+.delete-btn:hover {
+  background: #f89f9f;
+  transform: scale(1.1);
+}
+
 /* No Results */
 .no-results {
   text-align: center;

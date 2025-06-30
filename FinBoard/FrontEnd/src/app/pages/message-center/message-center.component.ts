@@ -1,144 +1,87 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-export interface Notification {
-  id: string;
-  tipo: 'ordine' | 'sistema' | 'avviso' | 'errore';
-  titolo: string;
-  messaggio: string;
-  dataCreazione: Date;
-  letto: boolean;
-  priorita: 'alta' | 'media' | 'bassa';
-  icona: string;
-}
+import { CheckResultLogService } from '../../services/check-result-log-service'; 
+import { CheckResultLog } from '../../models/check-result-log'; 
 
 @Component({
   selector: 'app-message-center',
   templateUrl: './message-center.component.html',
   styleUrls: ['./message-center.component.css'],
+  standalone: true,
   imports: [
-    // altri moduli
-   CommonModule,FormsModule
+    CommonModule, FormsModule
   ]
 })
 export class MessageCenterComponent implements OnInit {
 
-  notifications: Notification[] = [];
-  filteredNotifications: Notification[] = [];
-  
-  // Filtri
-  selectedTipo: string = 'tutti';
-  selectedStato: string = 'tutti';
+  logs: CheckResultLog[] = [];
+  filteredLogs: CheckResultLog[] = [];
+
+  selectedValid: string = 'tutti';
   searchTerm: string = '';
+  searchId: string = '';
+  searchRuleDescription: string = '';
   dataInizio: string = '';
   dataFine: string = '';
 
-  // Contatori
-  totalNotifications: number = 0;
-  unreadCount: number = 0;
+  totalLogs: number = 0;
+  validCount: number = 0;
+  invalidCount: number = 0;
 
-  tipiNotifica = [
-    { value: 'tutti', label: 'Tutti i tipi' },
-    { value: 'ordine', label: 'Ordini' },
-    { value: 'sistema', label: 'Sistema' },
-    { value: 'avviso', label: 'Avvisi' },
-    { value: 'errore', label: 'Errori' }
+  validOptions = [
+    { value: 'tutti', label: 'Tutti i risultati' },
+    { value: 'true', label: 'Validi' },
+    { value: 'false', label: 'Non Validi' }
   ];
 
-  statiNotifica = [
-    { value: 'tutti', label: 'Tutti gli stati' },
-    { value: 'letto', label: 'Lette' },
-    { value: 'non_letto', label: 'Non lette' }
-  ];
-
-  constructor() { }
+  constructor(private logService: CheckResultLogService) { }
 
   ngOnInit(): void {
-    this.loadMockData();
-    this.applyFilters();
+    this.loadLogsFromApi(); // ✅ carica da API, non mock
   }
 
-  private loadMockData(): void {
-    // Dati mock - qui integrerai le tue API
-    this.notifications = [
-      {
-        id: 'NOT001',
-        tipo: 'ordine',
-        titolo: 'Ordine Eseguito',
-        messaggio: 'L\'ordine ORD001 è stato eseguito con successo per 10.000,00 €',
-        dataCreazione: new Date('2024-06-01T10:30:00'),
-        letto: false,
-        priorita: 'alta',
-        icona: 'check-circle'
-      },
-      {
-        id: 'NOT002',
-        tipo: 'avviso',
-        titolo: 'Margine Basso',
-        messaggio: 'Il margine disponibile sul Portafoglio B è inferiore al 10%',
-        dataCreazione: new Date('2024-06-02T14:15:00'),
-        letto: true,
-        priorita: 'media',
-        icona: 'alert-triangle'
-      },
-      {
-        id: 'NOT003',
-        tipo: 'errore',
-        titolo: 'Ordine Annullato',
-        messaggio: 'L\'ordine ORD003 è stato annullato: fondi insufficienti',
-        dataCreazione: new Date('2024-06-03T09:45:00'),
-        letto: false,
-        priorita: 'alta',
-        icona: 'x-circle'
-      },
-      {
-        id: 'NOT004',
-        tipo: 'sistema',
-        titolo: 'Manutenzione Programmata',
-        messaggio: 'Manutenzione programmata del sistema dalle 02:00 alle 04:00',
-        dataCreazione: new Date('2024-06-04T16:20:00'),
-        letto: true,
-        priorita: 'bassa',
-        icona: 'settings'
-      },
-      {
-        id: 'NOT005',
-        tipo: 'ordine',
-        titolo: 'Ordine in Attesa',
-        messaggio: 'L\'ordine ORD004 è in attesa di conferma per 8.000,00 £',
-        dataCreazione: new Date('2024-06-05T11:10:00'),
-        letto: false,
-        priorita: 'media',
-        icona: 'clock'
-      }
-    ];
-
-    this.updateCounters();
+  loadLogsFromApi(): void {
+    this.logService.getAllLogs()
+      .subscribe(logs => {
+        this.logs = logs.map(log => ({
+          ...log,
+          timestamp: new Date(log.timestamp)
+        }));
+        this.updateCounters();
+        this.applyFilters();
+      });
   }
 
   applyFilters(): void {
-    this.filteredNotifications = this.notifications.filter(notification => {
-      const matchTipo = this.selectedTipo === 'tutti' || notification.tipo === this.selectedTipo;
-      const matchStato = this.selectedStato === 'tutti' || 
-                        (this.selectedStato === 'letto' && notification.letto) ||
-                        (this.selectedStato === 'non_letto' && !notification.letto);
+    this.filteredLogs = this.logs.filter(log => {
+      const matchValid = this.selectedValid === 'tutti' || 
+                         log.valid.toString() === this.selectedValid;
+
+      const matchId = !this.searchId || 
+                      log.id.toString().includes(this.searchId);
+
+      const matchRuleDescription = !this.searchRuleDescription || 
+                                   log.ruleDescription.toLowerCase()
+                                      .includes(this.searchRuleDescription.toLowerCase());
+
       const matchSearch = !this.searchTerm || 
-                         notification.titolo.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-                         notification.messaggio.toLowerCase().includes(this.searchTerm.toLowerCase());
-      
+                          (log.errorMessage?.toLowerCase() || '').includes(this.searchTerm.toLowerCase()) ||
+                          (log.ruleText?.toLowerCase() || '').includes(this.searchTerm.toLowerCase()) ||
+                          log.ruleId?.toString().includes(this.searchTerm);
+
       let matchData = true;
       if (this.dataInizio) {
         const startDate = new Date(this.dataInizio);
-        matchData = matchData && notification.dataCreazione >= startDate;
+        matchData = matchData && log.timestamp >= startDate;
       }
       if (this.dataFine) {
         const endDate = new Date(this.dataFine);
         endDate.setHours(23, 59, 59, 999);
-        matchData = matchData && notification.dataCreazione <= endDate;
+        matchData = matchData && log.timestamp <= endDate;
       }
 
-      return matchTipo && matchStato && matchSearch && matchData;
+      return matchValid && matchId && matchRuleDescription && matchSearch && matchData;
     });
   }
 
@@ -147,66 +90,33 @@ export class MessageCenterComponent implements OnInit {
   }
 
   clearFilters(): void {
-    this.selectedTipo = 'tutti';
-    this.selectedStato = 'tutti';
+    this.selectedValid = 'tutti';
     this.searchTerm = '';
+    this.searchId = '';
+    this.searchRuleDescription = '';
     this.dataInizio = '';
     this.dataFine = '';
     this.applyFilters();
   }
 
-  markAsRead(notificationId: string): void {
-    const notification = this.notifications.find(n => n.id === notificationId);
-    if (notification) {
-      notification.letto = true;
-      this.updateCounters();
-      this.applyFilters();
-    }
-  }
-
-  markAsUnread(notificationId: string): void {
-    const notification = this.notifications.find(n => n.id === notificationId);
-    if (notification) {
-      notification.letto = false;
-      this.updateCounters();
-      this.applyFilters();
-    }
-  }
-
-  deleteNotification(notificationId: string): void {
-    this.notifications = this.notifications.filter(n => n.id !== notificationId);
-    this.updateCounters();
-    this.applyFilters();
-  }
-
-  markAllAsRead(): void {
-    this.notifications.forEach(n => n.letto = true);
+  deleteLog(logId: number): void {
+    this.logs = this.logs.filter(l => l.id !== logId);
     this.updateCounters();
     this.applyFilters();
   }
 
   private updateCounters(): void {
-    this.totalNotifications = this.notifications.length;
-    this.unreadCount = this.notifications.filter(n => !n.letto).length;
+    this.totalLogs = this.logs.length;
+    this.validCount = this.logs.filter(l => l.valid).length;
+    this.invalidCount = this.logs.filter(l => !l.valid).length;
   }
 
-  getTipoIcon(tipo: string): string {
-    const icons: { [key: string]: string } = {
-      'ordine': 'trending-up',
-      'sistema': 'settings',
-      'avviso': 'alert-triangle',
-      'errore': 'alert-circle'
-    };
-    return icons[tipo] || 'bell';
+  getValidIcon(valid: boolean): string {
+    return valid ? 'check-circle' : 'x-circle';
   }
 
-  getPrioritaClass(priorita: string): string {
-    const classes: { [key: string]: string } = {
-      'alta': 'priority-high',
-      'media': 'priority-medium',
-      'bassa': 'priority-low'
-    };
-    return classes[priorita] || 'priority-medium';
+  getValidClass(valid: boolean): string {
+    return valid ? 'result-valid' : 'result-invalid';
   }
 
   formatDate(date: Date): string {

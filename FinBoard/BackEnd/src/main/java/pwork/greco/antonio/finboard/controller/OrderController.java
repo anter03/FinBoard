@@ -7,6 +7,7 @@ import pwork.greco.antonio.finboard.dto.CheckResult;
 import pwork.greco.antonio.finboard.dto.OrderDto;
 import pwork.greco.antonio.finboard.dto.OrderFilters;
 import pwork.greco.antonio.finboard.dto.OrderValidationResponse;
+import pwork.greco.antonio.finboard.service.CheckResultLogService;
 import pwork.greco.antonio.finboard.service.OrderCheckService;
 import pwork.greco.antonio.finboard.service.OrderService;
 
@@ -19,7 +20,8 @@ import java.util.stream.Collectors;
 public class OrderController {
 
     private final OrderService orderService;
-        private final OrderCheckService orderCheckService;
+    private final OrderCheckService orderCheckService;
+    private final CheckResultLogService checkResultLogService;
 
     @GetMapping
     public List<OrderDto> getAll() {
@@ -63,42 +65,43 @@ public class OrderController {
     //public ResponseEntity<OrderDto> create(@RequestBody OrderDto dto) {
     //    return new ResponseEntity<>(orderService.create(dto), HttpStatus.CREATED);
     //}
-
-    @PostMapping
-    public ResponseEntity<?> createOrder(@RequestBody OrderDto order) {
-        // Verifica pre-acquisto - ottieni tutti i risultati
+    @PostMapping("/validate")
+    public ResponseEntity<OrderValidationResponse> validateOrder(@RequestBody OrderDto order) {
         List<CheckResult> checkResults = orderCheckService.verifyOrder(order);
-
-        // Controlla se ci sono controlli falliti
         List<CheckResult> failedChecks = checkResults.stream()
-                .filter(result -> !result.isValid())
-                .collect(Collectors.toList());
+                .filter(r -> !r.isValid())
+                .toList();
+
+        // ✅ Log dei risultati (validi e non validi)
+        checkResultLogService.logCheckResults(checkResults);
 
         if (!failedChecks.isEmpty()) {
-            // Costruisci risposta con tutti gli errori
-            List<String> errorMessages = failedChecks.stream()
-                    .map(result -> String.format("[%s] %s",
-                            result.getRuleDescription(), result.getErrorMessage()))
-                    .collect(Collectors.toList());
-
-
-
-            return ResponseEntity.ok(
-                    new OrderValidationResponse(false, errorMessages, failedChecks));
+            List<String> messages = failedChecks.stream()
+                    .map(r -> String.format("[%s] %s", r.getRuleDescription(), r.getErrorMessage()))
+                    .toList();
+            return ResponseEntity.ok(new OrderValidationResponse(false, messages, checkResults));
         }
-
-        // Tutti i controlli sono passati - procedi con l'esecuzione
-        // Log dei controlli applicati con successo (opzionale)
-        List<String> appliedRules = checkResults.stream()
-                .map(CheckResult::getRuleDescription)
-                .collect(Collectors.toList());
-
-        System.out.println("Controlli applicati con successo: " + appliedRules);
-
-        // ... logica di esecuzione dell'ordine
 
         return ResponseEntity.ok(new OrderValidationResponse(true, null, checkResults));
     }
+
+    @PostMapping("/create")
+    public ResponseEntity<?> createOrder(@RequestBody OrderDto order) {
+        ResponseEntity<OrderValidationResponse> validationResponse = validateOrder(order);
+        if (!validationResponse.getBody().isValid()) {
+            return validationResponse;
+        }
+
+        // Qui va la logica di inserimento dell'ordine nel DB o sistema di backend
+        orderService.create(order);
+
+        OrderValidationResponse successResponse = new OrderValidationResponse();
+        successResponse.setValid(true);
+        successResponse.setErrorMessages(List.of("Ordine creato con successo"));
+        return ResponseEntity.ok(successResponse);
+
+    }
+
 }
 
 

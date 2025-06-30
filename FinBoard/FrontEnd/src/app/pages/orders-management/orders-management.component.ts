@@ -196,6 +196,17 @@ newOrder(): void {
     }
   }
 
+deleteOrder(order: Order): void {
+  const confirmed = window.confirm(`Sei sicuro di voler eliminare l'ordine ${order.id}?`);
+  if (confirmed) {
+    // Chiamata al servizio per eliminare l'ordine
+    this.orderService.hardDelete(order.id).subscribe(() => {
+      console.log('Ordine eliminato');
+    });
+  }
+}
+
+
   formatCurrency(amount: number, currency: string): string {
     if(currency == null)
       return  '';

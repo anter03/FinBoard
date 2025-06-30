@@ -1,4 +1,3 @@
-// check-limit-viewer.component.html
 <div class="validation-container" *ngIf="validationResponse">
   <!-- Header con stato generale -->
   <div class="validation-header" [class.valid]="validationResponse.valid" [class.invalid]="!validationResponse.valid">
@@ -44,7 +43,7 @@
     </div>
   </div>
 
-  <!-- Messaggi di errore globali -->
+  <!-- Messaggi di errore globali 
   <div class="global-errors" *ngIf="validationResponse.errorMessages.length > 0">
     <h4>Errori Generali:</h4>
     <ul>
@@ -52,5 +51,5 @@
         {{ error }}
       </li>
     </ul>
-  </div>
+  </div>-->
 </div>

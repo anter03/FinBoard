@@ -361,3 +361,33 @@ input[type="date"].form-control {
     align-items: stretch;
   }
 }
+
+.validation-section {
+  margin: 16px 0;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 16px;
+}
+
+.header-actions {
+  gap: 12px; /* Spazio tra i pulsanti */
+}
+
+.btn.btn-info {
+  background-color: #17a2b8;
+  border-color: #17a2b8;
+  color: white;
+}
+
+.btn.btn-info:hover {
+  background-color: #138496;
+  border-color: #117a8b;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

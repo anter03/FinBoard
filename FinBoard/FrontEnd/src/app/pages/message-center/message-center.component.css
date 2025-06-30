@@ -1,4 +1,4 @@
-/* Stili per il Centro Messaggi - seguono il design dell'app esistente */
+/* Stili per il Centro Log - seguono il design dell'app esistente */
 
 .message-center-container {
   padding: 24px;
@@ -18,10 +18,10 @@
   margin-bottom: 8px;
 }
 
-.icon-bell {
+.icon-clipboard {
   width: 24px;
   height: 24px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236366f1'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'/%3E%3C/svg%3E") no-repeat center;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236366f1'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01'/%3E%3C/svg%3E") no-repeat center;
   background-size: contain;
 }
 
@@ -32,7 +32,18 @@
   margin: 0;
 }
 
-.unread-badge {
+.valid-badge {
+  background: #10b981;
+  color: white;
+  border-radius: 12px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 20px;
+  text-align: center;
+}
+
+.invalid-badge {
   background: #ef4444;
   color: white;
   border-radius: 12px;
@@ -219,33 +230,35 @@
   color: #6b7280 !important;
 }
 
-.action-btn {
+.results-stats {
+  display: flex;
+  gap: 20px;
+}
+
+.stat-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 14px;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #6b7280;
   font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
 }
 
-.action-btn.secondary {
-  background: #10b981;
-  color: white;
-  border: none;
+.stat-value {
+  font-weight: 600;
+  font-size: 14px;
+  color: #374151;
 }
 
-.action-btn.secondary:hover {
-  background: #059669;
+.stat-value.valid {
+  color: #10b981;
 }
 
-.icon-check-circle {
-  width: 16px;
-  height: 16px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'/%3E%3C/svg%3E") no-repeat center;
-  background-size: contain;
+.stat-value.invalid {
+  color: #ef4444;
 }
 
 /* Table */
@@ -291,9 +304,14 @@
   background: rgba(99, 102, 241, 0.02);
 }
 
-.notifications-table tbody tr.unread {
-  background: rgba(99, 102, 241, 0.05);
-  border-left: 4px solid #6366f1;
+.notifications-table tbody tr.valid-row {
+  background: rgba(16, 185, 129, 0.03);
+  border-left: 4px solid #10b981;
+}
+
+.notifications-table tbody tr.invalid-row {
+  background: rgba(239, 68, 68, 0.03);
+  border-left: 4px solid #ef4444;
 }
 
 .notifications-table td {
@@ -311,95 +329,81 @@
 }
 
 /* Cell Styles */
-.notification-id {
+.log-id {
   font-family: 'Monaco', 'Consolas', monospace;
   font-size: 12px;
   color: #6b7280;
   background: #f3f4f6;
   padding: 4px 8px;
   border-radius: 4px;
-}
-
-.type-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  width: fit-content;
-}
-
-.type-badge.type-ordine {
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
-}
-
-.type-badge.type-sistema {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
-}
-
-.type-badge.type-avviso {
-  background: rgba(245, 158, 11, 0.1);
-  color: #f59e0b;
-}
-
-.type-badge.type-errore {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
-}
-
-.notification-title {
-  font-weight: 500;
-  color: #374151;
-}
-
-.notification-message {
-  color: #6b7280;
-  line-height: 1.4;
-  max-width: 300px;
-}
-
-.status-badge {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: uppercase;
-}
-
-.status-badge.read {
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
-}
-
-.status-badge.unread {
-  background: rgba(245, 158, 11, 0.1);
-  color: #f59e0b;
-}
-
-.priority-badge {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 11px;
   font-weight: 600;
 }
 
-.priority-high {
+.result-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.result-badge.result-valid {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.result-badge.result-invalid {
   background: rgba(239, 68, 68, 0.1);
   color: #ef4444;
 }
 
-.priority-medium {
-  background: rgba(245, 158, 11, 0.1);
-  color: #f59e0b;
+.rule-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.priority-low {
-  background: rgba(16, 185, 129, 0.1);
+.rule-id {
+  font-family: 'Monaco', 'Consolas', monospace;
+  font-size: 11px;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 3px;
+  width: fit-content;
+}
+
+.rule-text {
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.4;
+  max-width: 250px;
+}
+
+.rule-description {
+  font-weight: 500;
+  color: #374151;
+  line-height: 1.4;
+  max-width: 200px;
+}
+
+.error-message {
+  color: #ef4444;
+  font-weight: 500;
+  line-height: 1.4;
+  max-width: 250px;
+}
+
+.no-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   color: #10b981;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 /* Action Buttons */
@@ -430,44 +434,7 @@
   background: rgba(59, 130, 246, 0.2);
 }
 
-.action-icon-btn.mark-read {
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
-}
-
-.action-icon-btn.mark-read:hover {
-  background: rgba(16, 185, 129, 0.2);
-}
-
-.action-icon-btn.mark-unread {
-  background: rgba(245, 158, 11, 0.1);
-  color: #f59e0b;
-}
-
-.action-icon-btn.mark-unread:hover {
-  background: rgba(245, 158, 11, 0.2);
-}
-
 .action-icon-btn.delete {
   background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
-}
-
-.action-icon-btn.delete:hover {
-  background: rgba(239, 68, 68, 0.2);
-}
-
-/* Icons */
-.icon-eye, .icon-mail, .icon-mail-open, .icon-trash,
-.icon-trending-up, .icon-settings, .icon-alert-triangle, 
-.icon-alert-circle, .icon-clock, .icon-bell-off {
-  width: 16px;
-  height: 16px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
-.icon-eye {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 12a3 3 0 11-6 0 3 3 0 016 0z'/%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z'/%3E%3C/svg%3E");
+  color:red
 }
