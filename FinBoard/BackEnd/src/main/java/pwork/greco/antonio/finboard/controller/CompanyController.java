@@ -15,6 +15,7 @@ public class CompanyController {
 
     private final CompanyService companyService;
 
+
     // GET /api/companies
     @GetMapping
     public ResponseEntity<List<CompanyDto>> getAllCompanies() {
