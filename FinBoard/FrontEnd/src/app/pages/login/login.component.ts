@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { LoginRequest } from '../../models/login-request';
 
 @Component({
   selector: 'app-login',
@@ -14,10 +16,12 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   isLoading = false;
   errorMessage = '';
+  credentials: LoginRequest = { username: '', password: '' };
 
   constructor(
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -32,9 +36,37 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  onSubmit(): void {
-      this.router.navigate(['/dashboard']);
+  //onSubmit(): void {
+  //   this.router.navigate(['/dashboard']);
+  //onSubmit(): void {
+onSubmit(): void {
+   // if (this.loginForm.valid) {
+  if (true) {
+    const credentials: LoginRequest = {
+      username: this.email?.value,  // o email se cambi l'interface
+      password: this.password?.value  
+    };
+    
+    console.log('Sending credentials:', credentials);
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.authService.login(credentials).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        console.error('Login fallito', err);
+        this.errorMessage = 'Login fallito. Verifica le credenziali.';
+      }
+    });
   }
+}
+
+
+
 
 
 

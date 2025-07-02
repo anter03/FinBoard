@@ -30,6 +30,15 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public User findByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+        return user;
+    }
+
+
+
+
     public UserDto getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
@@ -71,7 +80,7 @@ public class UserService {
         }
         userRepository.deleteById(id);
     }
-    private UserDto toDto(User entity) {
+    public UserDto toDto(User entity) {
         Profile profile = null;
         if (entity.getProfileId() != null) {
             profile = profileRepository.findById(entity.getProfileId()).orElse(null);
