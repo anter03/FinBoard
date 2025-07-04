@@ -1,0 +1,180 @@
+-- =====================================================
+-- Script per reset e popolamento database finBoard
+-- =====================================================
+
+-- Disabilita i vincoli di chiave esterna per evitare errori durante la cancellazione
+ALTER TABLE finboard.dbo.[order] NOCHECK CONSTRAINT ALL;
+ALTER TABLE finboard.dbo.portfolio NOCHECK CONSTRAINT ALL;
+ALTER TABLE finboard.dbo.instrument NOCHECK CONSTRAINT ALL;
+ALTER TABLE finboard.dbo.[user] NOCHECK CONSTRAINT ALL;
+ALTER TABLE finboard.dbo.check_limit NOCHECK CONSTRAINT ALL;
+
+-- =====================================================
+-- CANCELLAZIONE DATI (ordine inverso delle dipendenze)
+-- =====================================================
+
+-- Cancella ordini (dipende da portfolio, user, instrument)
+DELETE FROM finboard.dbo.[order];
+
+-- Cancella portfolio (dipende da company, user)
+DELETE FROM finboard.dbo.portfolio;
+
+-- Cancella check_limit (dipende da profile, instrument_type)
+DELETE FROM finboard.dbo.check_limit;
+
+-- Cancella user (dipende da company, profile)
+DELETE FROM finboard.dbo.[user];
+
+-- Cancella instrument (dipende da instrument_type)
+DELETE FROM finboard.dbo.instrument;
+
+-- Cancella tabelle senza dipendenze
+DELETE FROM finboard.dbo.company;
+DELETE FROM finboard.dbo.instrument_type;
+DELETE FROM finboard.dbo.profile;
+
+-- =====================================================
+-- RESET IDENTITY
+-- =====================================================
+
+DBCC CHECKIDENT ('finboard.dbo.[order]', RESEED, 0);
+DBCC CHECKIDENT ('finboard.dbo.portfolio', RESEED, 0);
+DBCC CHECKIDENT ('finboard.dbo.check_limit', RESEED, 0);
+DBCC CHECKIDENT ('finboard.dbo.[user]', RESEED, 0);
+DBCC CHECKIDENT ('finboard.dbo.instrument', RESEED, 0);
+DBCC CHECKIDENT ('finboard.dbo.company', RESEED, 0);
+DBCC CHECKIDENT ('finboard.dbo.instrument_type', RESEED, 0);
+DBCC CHECKIDENT ('finboard.dbo.profile', RESEED, 0);
+
+-- =====================================================
+-- INSERT DATI (ordine corretto delle dipendenze)
+-- =====================================================
+
+-- 1. COMPANY (tabella indipendente)
+INSERT INTO finboard.dbo.company (id, created_at, deleted, name) VALUES(1, '2024-01-15 10:00:00.000', 0, N'finBoard');
+INSERT INTO finboard.dbo.company (id, created_at, deleted, name) VALUES(2, '2024-01-15 10:00:00.000', 0, N'Alpha Investments');
+
+-- 2. INSTRUMENT_TYPE (tabella indipendente)
+INSERT INTO finboard.dbo.instrument_type (name) VALUES 
+('Stock'),
+('Bond'),
+('ETF'),
+('Mutual Fund'),
+('Commodity'),
+('Currency'),
+('Derivative'),
+('Option'),
+('Future'),
+('REIT');
+
+-- 3. PROFILE (tabella indipendente)
+INSERT INTO finboard.dbo.profile (deleted, description, name) VALUES 
+(0, 'Amministratore del sistema con accesso completo', 'Administrator'),
+(0, 'Trader con permessi di trading completi', 'Senior Trader'),
+(0, 'Trader con permessi limitati', 'Junior Trader'),
+(0, 'Analista di mercato con accesso in sola lettura', 'Market Analyst'),
+(0, 'Manager di portafoglio', 'Portfolio Manager'),
+(0, 'Responsabile del rischio', 'Risk Manager'),
+(0, 'Utente in sola lettura', 'Read Only User');
+
+-- 4. USER (dipende da company e profile)
+INSERT INTO finboard.dbo.[user] (id, company_id, created_at, deleted, email, password_hash, username, profile_id) VALUES(1, 1, '2024-01-15 10:00:00.000', 0, N'admin@finboard.com', N'$2a$07$A1c4jcB/HXMaNvd2PwKnQ.I0/MM/ucw9yXbR.cU.Pt0.O9M7f/KRe', N'admin', 1);
+INSERT INTO finboard.dbo.[user] (id, company_id, created_at, deleted, email, password_hash, username, profile_id) VALUES(2, 1, '2024-01-15 10:30:00.000', 0, N'marco.rossi@finboard.com', N'$2a$13$9ihksgctvfMkZWE75os2MeMrr4.KqU.0xPXY4qneBwDdvg6f9B7nu', N'mrossi', 2);
+INSERT INTO finboard.dbo.[user] (id, company_id, created_at, deleted, email, password_hash, username, profile_id) VALUES(3, 1, '2024-01-15 11:00:00.000', 0, N'lucia.bianchi@finboard.com', N'$2a$13$Z2C/9d6Wh8URnSiS7KYFlOsjRjLHeCLhmPSgaPux4xxTzxxqscW7K', N'lbianchi', 3);
+INSERT INTO finboard.dbo.[user] (id, company_id, created_at, deleted, email, password_hash, username, profile_id) VALUES(4, 2, '2024-01-15 11:30:00.000', 0, N'giovanni.verdi@finboard.com', N'$2a$13$AlVLsmYgY5Mhx6Lb9FhqteLyLBleWCjfzyVbQKO3jLcmGfp2Yd7qO', N'gverdi', 4);
+
+-- 5. INSTRUMENT (dipende da instrument_type)
+INSERT INTO finboard.dbo.instrument (id, currency, isin, name, instrument_type_id, country, rating) VALUES(1, N'EUR', N'IT0003128367', N'ENI SpA', 1, N'Italy', N'BBB+');
+INSERT INTO finboard.dbo.instrument (id, currency, isin, name, instrument_type_id, country, rating) VALUES(2, N'EUR', N'IT0000072618', N'Intesa Sanpaolo', 1, N'Italy', N'BBB');
+INSERT INTO finboard.dbo.instrument (id, currency, isin, name, instrument_type_id, country, rating) VALUES(3, N'USD', N'US0378331005', N'Apple Inc', 1, N'USA', N'AAA');
+INSERT INTO finboard.dbo.instrument (id, currency, isin, name, instrument_type_id, country, rating) VALUES(4, N'USD', N'US5949181045', N'Microsoft Corporation', 1, N'USA', N'AAA');
+INSERT INTO finboard.dbo.instrument (id, currency, isin, name, instrument_type_id, country, rating) VALUES(5, N'EUR', N'IT0005218380', N'BTP Italia 2.55% 2030', 2, N'Italy', N'BBB');
+INSERT INTO finboard.dbo.instrument (id, currency, isin, name, instrument_type_id, country, rating) VALUES(6, N'USD', N'US912828Z490', N'US Treasury 2.75% 2032', 2, N'USA', N'AAA');
+INSERT INTO finboard.dbo.instrument (id, currency, isin, name, instrument_type_id, country, rating) VALUES(7, N'EUR', N'IE00B4L5Y983', N'iShares Core MSCI World ETF', 3, N'Ireland', N'AA');
+INSERT INTO finboard.dbo.instrument (id, currency, isin, name, instrument_type_id, country, rating) VALUES(8, N'USD', N'US46434G1031', N'Invesco QQQ Trust ETF', 3, N'USA', N'AA+');
+INSERT INTO finboard.dbo.instrument (id, currency, isin, name, instrument_type_id, country, rating) VALUES(9, N'EUR', N'LU0392494562', N'Franklin Technology Fund', 4, N'Luxembourg', N'A');
+INSERT INTO finboard.dbo.instrument (id, currency, isin, name, instrument_type_id, country, rating) VALUES(10, N'USD', N'XAU', N'Gold Spot', 5, N'Global', N'AAA');
+INSERT INTO finboard.dbo.instrument (id, currency, isin, name, instrument_type_id, country, rating) VALUES(11, N'EUR', N'EURUSD', N'EUR/USD Currency Pair', 6, N'Global', N'AA');
+INSERT INTO finboard.dbo.instrument (id, currency, isin, name, instrument_type_id, country, rating) VALUES(12, N'USD', N'CLZ24', N'Crude Oil Future Dec 2024', 7, N'USA', N'BBB');
+
+-- 6. PORTFOLIO (dipende da company e user)
+INSERT INTO finboard.dbo.portfolio (created_at, deleted, name, company_id, user_id) VALUES 
+('2024-01-15 15:00:00', 0, 'Portfolio Azionario Europa', 1, 2),
+('2024-01-15 15:00:00', 0, 'Portfolio Obbligazionario', 1, 2),
+('2024-01-15 15:00:00', 0, 'Portfolio Diversificato', 1, 3),
+('2024-01-15 15:00:00', 0, 'Alpha Growth Portfolio', 2, 4),
+('2024-01-15 15:00:00', 0, 'Alpha Income Portfolio', 2, 5),
+('2024-01-15 15:00:00', 0, 'Beta Tactical Portfolio', 3, 6),
+('2024-01-15 15:00:00', 0, 'Gamma Balanced Portfolio', 4, 8),
+('2024-01-15 15:00:00', 0, 'Delta Conservative Portfolio', 5, 9);
+
+-- 7. CHECK_LIMIT (dipende da profile e instrument_type)
+INSERT INTO finboard.dbo.check_limit (id, action_type, country, created_at, description, instrument_type_id, limit_type, limit_value, profile_id, rating) VALUES(1, N'LIMIT', N'Italy', '2024-01-15 16:00:00.000', N'Limite massimo acquisto singolo per azioni italiane', 1, N'SINGLE', 1000000.0000, 2, NULL);
+INSERT INTO finboard.dbo.check_limit (id, action_type, country, created_at, description, instrument_type_id, limit_type, limit_value, profile_id, rating) VALUES(2, N'LIMIT', N'Italy', '2024-01-15 16:00:00.000', N'Limite massimo acquisto singolo per ITALIANE', 1, N'TOTAL', 1500000.0000, 2, NULL);
+INSERT INTO finboard.dbo.check_limit (id, action_type, country, created_at, description, instrument_type_id, limit_type, limit_value, profile_id, rating) VALUES(3, N'BUY', NULL, '2024-01-15 16:00:00.000', N'Limite per obbligazioni solo rating > A', 1, N'SINGLE', 5000000.0000, 2, N'A');
+INSERT INTO finboard.dbo.check_limit (id, action_type, country, created_at, description, instrument_type_id, limit_type, limit_value, profile_id, rating) VALUES(4, N'BUY', NULL, '2024-01-15 16:00:00.000', N'Limite giornaliero per obbligazioni high yield', 2, N'SINGLE', 2000000.0000, 2, N'BB');
+INSERT INTO finboard.dbo.check_limit (id, action_type, country, created_at, description, instrument_type_id, limit_type, limit_value, profile_id, rating) VALUES(5, N'BUY', N'Italy', '2024-01-15 16:00:00.000', N'Limite massimo vendita singola per azioni italiane', 1, N'SINGLE', 800000.0000, 3, NULL);
+INSERT INTO finboard.dbo.check_limit (id, action_type, country, created_at, description, instrument_type_id, limit_type, limit_value, profile_id, rating) VALUES(6, N'BUY', NULL, '2024-01-15 16:00:00.000', N'Limite mensile per ETF', 3, N'SINGLE', 10000000.0000, 2, NULL);
+INSERT INTO finboard.dbo.check_limit (id, action_type, country, created_at, description, instrument_type_id, limit_type, limit_value, profile_id, rating) VALUES(7, N'BUY', NULL, '2024-01-15 16:00:00.000', N'Limite settimanale per derivati', 7, N'SINGLE', 3000000.0000, 2, NULL);
+INSERT INTO finboard.dbo.check_limit (id, action_type, country, created_at, description, instrument_type_id, limit_type, limit_value, profile_id, rating) VALUES(8, N'BUY', N'Global', '2024-01-15 16:00:00.000', N'Limite giornaliero per commodities', 5, N'SINGLE', 1000000.0000, 2, NULL);
+INSERT INTO finboard.dbo.check_limit (id, action_type, country, created_at, description, instrument_type_id, limit_type, limit_value, profile_id, rating) VALUES(9, N'BUY', NULL, '2024-01-15 16:00:00.000', N'Limite operazioni junior trader', 1, N'SINGLE', 100000.0000, 3, NULL);
+INSERT INTO finboard.dbo.check_limit (id, action_type, country, created_at, description, instrument_type_id, limit_type, limit_value, profile_id, rating) VALUES(10, N'BUY', NULL, '2024-01-15 16:00:00.000', N'Limite vendite junior trader', 1, N'SINGLE', 100000.0000, 3, NULL);
+
+
+
+-- 8. ORDER (dipende da instrument, operator(user), portfolio)
+INSERT INTO finboard.dbo.[order] (id, created_at, deleted, executed_at, price, quantity, side, status, instrument_id, operator_id, portfolio_id, evaluation_date, operation_date, currency) VALUES(1, '2024-01-15 17:00:00.000', 0, '2024-01-15 17:05:00.000', 14.2500, 1000.0000, N'BUY', N'EXECUTED', 1, 2, 1, '2024-01-15 16:55:00.000', '2024-01-15 17:00:00.000', N'EUR');
+INSERT INTO finboard.dbo.[order] (id, created_at, deleted, executed_at, price, quantity, side, status, instrument_id, operator_id, portfolio_id, evaluation_date, operation_date, currency) VALUES(2, '2024-01-15 17:10:00.000', 0, '2024-01-15 17:15:00.000', 3.4500, 2000.0000, N'BUY', N'EXECUTED', 2, 2, 1, '2024-01-15 17:05:00.000', '2024-01-15 17:10:00.000', N'EUR');
+INSERT INTO finboard.dbo.[order] (id, created_at, deleted, executed_at, price, quantity, side, status, instrument_id, operator_id, portfolio_id, evaluation_date, operation_date, currency) VALUES(3, '2024-01-15 17:20:00.000', 0, NULL, 195.5000, 500.0000, N'BUY', N'PENDING', 3, 2, 1, '2024-01-15 17:15:00.000', '2024-01-15 17:20:00.000', N'USD');
+INSERT INTO finboard.dbo.[order] (id, created_at, deleted, executed_at, price, quantity, side, status, instrument_id, operator_id, portfolio_id, evaluation_date, operation_date, currency) VALUES(4, '2024-01-15 17:30:00.000', 0, '2024-01-15 17:35:00.000', 415.7500, 100.0000, N'BUY', N'EXECUTED', 4, 2, 3, '2024-01-15 17:25:00.000', '2024-01-15 17:30:00.000', N'USD');
+INSERT INTO finboard.dbo.[order] (id, created_at, deleted, executed_at, price, quantity, side, status, instrument_id, operator_id, portfolio_id, evaluation_date, operation_date, currency) VALUES(5, '2024-01-15 17:40:00.000', 0, '2024-01-15 17:45:00.000', 98.5000, 10.0000, N'BUY', N'EXECUTED', 5, 3, 2, '2024-01-15 17:35:00.000', '2024-01-15 17:40:00.000', N'EUR');
+INSERT INTO finboard.dbo.[order] (id, created_at, deleted, executed_at, price, quantity, side, status, instrument_id, operator_id, portfolio_id, evaluation_date, operation_date, currency) VALUES(6, '2024-01-15 17:50:00.000', 0, '2024-01-15 17:55:00.000', 105.2500, 50.0000, N'BUY', N'EXECUTED', 6, 3, 2, '2024-01-15 17:45:00.000', '2024-01-15 17:50:00.000', N'USD');
+INSERT INTO finboard.dbo.[order] (id, created_at, deleted, executed_at, price, quantity, side, status, instrument_id, operator_id, portfolio_id, evaluation_date, operation_date, currency) VALUES(7, '2024-01-15 18:00:00.000', 0, NULL, 75.8000, 200.0000, N'BUY', N'PENDING', 7, 4, 4, '2024-01-15 17:55:00.000', '2024-01-15 18:00:00.000', N'EUR');
+INSERT INTO finboard.dbo.[order] (id, created_at, deleted, executed_at, price, quantity, side, status, instrument_id, operator_id, portfolio_id, evaluation_date, operation_date, currency) VALUES(8, '2024-01-15 18:10:00.000', 0, '2024-01-15 18:15:00.000', 385.9000, 100.0000, N'BUY', N'EXECUTED', 8, 4, 4, '2024-01-15 18:05:00.000', '2024-01-15 18:10:00.000', N'USD');
+INSERT INTO finboard.dbo.[order] (id, created_at, deleted, executed_at, price, quantity, side, status, instrument_id, operator_id, portfolio_id, evaluation_date, operation_date, currency) VALUES(9, '2024-01-15 18:20:00.000', 0, '2024-01-15 18:25:00.000', 45.3000, 500.0000, N'BUY', N'EXECUTED', 9, 2, 1, '2024-01-15 18:15:00.000', '2024-01-15 18:20:00.000', N'EUR');
+INSERT INTO finboard.dbo.[order] (id, created_at, deleted, executed_at, price, quantity, side, status, instrument_id, operator_id, portfolio_id, evaluation_date, operation_date, currency) VALUES(10, '2024-01-15 18:30:00.000', 0, '2024-01-15 18:35:00.000', 2485.5000, 2.0000, N'BUY', N'EXECUTED', 10, 1, 2, '2024-01-15 18:25:00.000', '2024-01-15 18:30:00.000', N'USD');
+INSERT INTO finboard.dbo.[order] (id, created_at, deleted, executed_at, price, quantity, side, status, instrument_id, operator_id, portfolio_id, evaluation_date, operation_date, currency) VALUES(11, '2024-01-15 18:40:00.000', 0, '2024-01-15 18:45:00.000', 1.1850, 10000.0000, N'BUY', N'EXECUTED', 11, 2, 2, '2024-01-15 18:35:00.000', '2024-01-15 18:40:00.000', N'EUR');
+INSERT INTO finboard.dbo.[order] (id, created_at, deleted, executed_at, price, quantity, side, status, instrument_id, operator_id, portfolio_id, evaluation_date, operation_date, currency) VALUES(12, '2024-01-15 18:50:00.000', 0, NULL, 85.4000, 100.0000, N'SELL', N'PENDING', 12, 4, 3, '2024-01-15 18:45:00.000', '2024-01-15 18:50:00.000', N'USD');
+INSERT INTO finboard.dbo.[order] (id, created_at, deleted, executed_at, price, quantity, side, status, instrument_id, operator_id, portfolio_id, evaluation_date, operation_date, currency) VALUES(13, '2024-01-15 19:00:00.000', 0, '2024-01-15 19:05:00.000', 14.3000, 500.0000, N'SELL', N'EXECUTED', 1, 2, 3, '2024-01-15 18:55:00.000', '2024-01-15 19:00:00.000', N'EUR');
+INSERT INTO finboard.dbo.[order] (id, created_at, deleted, executed_at, price, quantity, side, status, instrument_id, operator_id, portfolio_id, evaluation_date, operation_date, currency) VALUES(14, '2024-01-15 19:10:00.000', 0, NULL, 3.4800, 1000.0000, N'SELL', N'CANCELLED', 2, 2, 3, '2024-01-15 19:05:00.000', '2024-01-15 19:10:00.000', N'EUR');
+INSERT INTO finboard.dbo.[order] (id, created_at, deleted, executed_at, price, quantity, side, status, instrument_id, operator_id, portfolio_id, evaluation_date, operation_date, currency) VALUES(15, '2024-01-15 19:20:00.000', 0, '2024-01-15 19:25:00.000', 196.2500, 250.0000, N'SELL', N'EXECUTED', 3, 3, 3, '2024-01-15 19:15:00.000', '2024-01-15 19:20:00.000', N'USD');
+INSERT INTO finboard.dbo.[order] (id, created_at, deleted, executed_at, price, quantity, side, status, instrument_id, operator_id, portfolio_id, evaluation_date, operation_date, currency) VALUES(16, '2025-06-26 17:12:20.220', 0, NULL, 3.0000, 3.0000, N'SELL', N'DRAFT', 3, 1, 4, '2025-06-28 00:00:00.000', '2025-06-26 00:00:00.000', N'JPY');
+INSERT INTO finboard.dbo.[order] (id, created_at, deleted, executed_at, price, quantity, side, status, instrument_id, operator_id, portfolio_id, evaluation_date, operation_date, currency) VALUES(17, '2025-06-26 17:13:59.989', 0, NULL, 1.0000, 100.0000, N'BUY', N'DRAFT', 3, 1, 4, '2025-06-28 00:00:00.000', '2025-06-26 00:00:00.000', N'JPY');
+INSERT INTO finboard.dbo.[order] (id, created_at, deleted, executed_at, price, quantity, side, status, instrument_id, operator_id, portfolio_id, evaluation_date, operation_date, currency) VALUES(18, '2025-06-26 17:13:59.989', 0, NULL, 2.0000, 100.0000, N'BUY', N'DRAFT', 3, 1, 2, '2025-06-27 00:00:00.000', '2025-06-25 00:00:00.000', N'JPY');
+-- =====================================================
+-- RIABILITA I VINCOLI DI CHIAVE ESTERNA
+-- =====================================================
+
+ALTER TABLE finboard.dbo.[order] CHECK CONSTRAINT ALL;
+ALTER TABLE finboard.dbo.portfolio CHECK CONSTRAINT ALL;
+ALTER TABLE finboard.dbo.instrument CHECK CONSTRAINT ALL;
+ALTER TABLE finboard.dbo.[user] CHECK CONSTRAINT ALL;
+ALTER TABLE finboard.dbo.check_limit CHECK CONSTRAINT ALL;
+
+-- =====================================================
+-- VERIFICA RISULTATI
+-- =====================================================
+
+SELECT 'company' as tabella, COUNT(*) as record_count FROM finboard.dbo.company
+UNION ALL
+SELECT 'instrument_type', COUNT(*) FROM finboard.dbo.instrument_type
+UNION ALL
+SELECT 'profile', COUNT(*) FROM finboard.dbo.profile
+UNION ALL
+SELECT 'user', COUNT(*) FROM finboard.dbo.[user]
+UNION ALL
+SELECT 'instrument', COUNT(*) FROM finboard.dbo.instrument
+UNION ALL
+SELECT 'portfolio', COUNT(*) FROM finboard.dbo.portfolio
+UNION ALL
+SELECT 'check_limit', COUNT(*) FROM finboard.dbo.check_limit
+UNION ALL
+SELECT 'order', COUNT(*) FROM finboard.dbo.[order];
+
+
+
+PRINT 'Reset e popolamento database finBoard completato con successo!';
+
+INSERT INTO finboard.dbo.check_limit
+(id, action_type, country, created_at, description, instrument_type_id, limit_type, limit_value, profile_id, rating)
+VALUES(1, N'LIMIT', N'Italy', '2024-01-15 16:00:00.000', N'Limite massimo acquisto singolo per azioni italiane', 1, N'TOTAL', 1000000.0000, 3, NULL);
