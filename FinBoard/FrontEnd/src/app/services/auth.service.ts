@@ -30,12 +30,18 @@ login(credentials: LoginRequest): Observable<AuthResponse> {
   return this.http.post<AuthResponse>(`${this.baseUrl}/login`, credentials)
     .pipe(
       tap(response => {
+        //console.log("response", response);
         sessionStorage.setItem('token', response.token);
-          sessionStorage.setItem('user', JSON.stringify(response.user));
-
+        sessionStorage.setItem('user', JSON.stringify(response.user));
+          
       })
     );
 }
+
+//TODO
+//logout(credentials: LoginRequest): Observable<> {
+//  
+//}
 
 
 }

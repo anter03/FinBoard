@@ -28,7 +28,6 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // Genera il token JWT
     public String generateToken(User user) {
         return Jwts.builder()
                 .setSubject(user.getUsername())
@@ -38,7 +37,7 @@ public class JwtUtils {
                 .compact();
     }
 
-    // Estrae username dal token
+
     public String getUsernameFromToken(String token) {
        return Jwts.parser()
                .setSigningKey(getSigningKey())
@@ -49,13 +48,13 @@ public class JwtUtils {
 
     }
 
-    // Verifica se il token è valido e non scaduto
+
     public boolean validateToken(String token, UserDetails userDetails) {
         try {
             String username = getUsernameFromToken(token);
             return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
         } catch (JwtException | IllegalArgumentException e) {
-            // Log dell'errore (opzionale)
+
             return false;
         }
     }

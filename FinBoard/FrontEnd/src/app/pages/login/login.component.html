@@ -1,12 +1,12 @@
 <div class="login-container">
   <div class="login-card">
     <div class="login-header">
-      <div class="logo">finBoard</div>
+      <div class="logo">FinBoard</div>
       <p class="login-subtitle">Accedi al tuo account per continuare</p>
     </div>
     
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-      <!-- Email Field -->
+      <!-- Email Field 
       <div class="form-group">
         <label for="email">Email</label>
         <input 
@@ -27,7 +27,27 @@
           </small>
         </div>
       </div>
-      
+      -->
+          <div class="form-group">
+        <label for="username">Username</label>
+        <input 
+          type="username" 
+          id="username"
+          formControlName="username"
+          class="form-input"
+          [class.error]="hasError('username', 'required') || hasError('username', 'username')"
+          placeholder="Inserisci la tua username"
+          autocomplete="username">
+        
+        <div class="error-messages" *ngIf="username?.touched && username?.errors">
+          <small *ngIf="hasError('username', 'required')" class="error-text">
+            L'username è obbligatoria
+          </small>
+          <small *ngIf="hasError('username', 'username')" class="error-text">
+            Inserisci uno username valido
+          </small>
+        </div>
+      </div>
       <!-- Password Field -->
       <div class="form-group">
         <label for="password">Password</label>

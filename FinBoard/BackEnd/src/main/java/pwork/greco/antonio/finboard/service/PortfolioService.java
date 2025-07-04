@@ -61,8 +61,6 @@ public class PortfolioService {
         portfolioRepository.deleteById(id);
     }
 
-    // Mapping
-
     private PortfolioDto toDto(Portfolio entity) {
         return PortfolioDto.builder()
                 .id(entity.getId())
@@ -88,8 +86,6 @@ public class PortfolioService {
         if (user == null && company == null)
             throw new RuntimeException("Either userId or companyId must be provided");
 
-        //if (user != null && company != null)
-        //    throw new RuntimeException("Only one of userId or companyId can be provided");
 
         return Portfolio.builder()
                 .id(dto.getId())

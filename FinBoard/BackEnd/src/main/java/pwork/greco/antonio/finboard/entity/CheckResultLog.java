@@ -7,10 +7,10 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "check_result_log")
-@Data // Genera getter, setter, toString, equals, hashCode
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder // (opzionale ma utile per costruzione fluida)
+@Builder
 public class CheckResultLog {
 
     @Id

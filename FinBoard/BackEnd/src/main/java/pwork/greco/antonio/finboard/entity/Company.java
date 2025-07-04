@@ -27,7 +27,7 @@ public class Company {
     @PrePersist
     public void prePersist() {
         if (createdAt == null) {
-            createdAt = LocalDateTime.now(); // o ZoneOffset.UTC.now() se vuoi UTC esplicito
+            createdAt = LocalDateTime.now();
         }
         if (deleted == null) {
             deleted = false;

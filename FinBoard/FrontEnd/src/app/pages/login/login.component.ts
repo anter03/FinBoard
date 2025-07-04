@@ -30,24 +30,22 @@ export class LoginComponent implements OnInit {
 
   private initializeForm(): void {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      //username: ['', [Validators.required, Validators.username]],
+      username : '',
       password: ['', [Validators.required, Validators.minLength(6)]],
       remember: [false]
     });
   }
 
-  //onSubmit(): void {
-  //   this.router.navigate(['/dashboard']);
-  //onSubmit(): void {
 onSubmit(): void {
    // if (this.loginForm.valid) {
   if (true) {
     const credentials: LoginRequest = {
-      username: this.email?.value,  // o email se cambi l'interface
+      username: this.username?.value,  // o username se cambi l'interface
       password: this.password?.value  
     };
     
-    console.log('Sending credentials:', credentials);
+    
     this.isLoading = true;
     this.errorMessage = '';
 
@@ -71,7 +69,7 @@ onSubmit(): void {
 
 
   // Getter per accesso facile ai controlli del form
-  get email() { return this.loginForm.get('email'); }
+  get username() { return this.loginForm.get('username'); }
   get password() { return this.loginForm.get('password'); }
 
   // Metodi per validazione

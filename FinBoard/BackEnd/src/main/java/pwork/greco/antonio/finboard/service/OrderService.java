@@ -79,13 +79,6 @@ public class OrderService {
 
 
 
-
-
-
-
-
-    // Mapping
-
     public OrderDto toDto(Order entity) {
         return OrderDto.builder()
                 .id(entity.getId())
@@ -140,7 +133,7 @@ public class OrderService {
                 filters.getSide() == null;
 
         if (noFilters) {
-            return getAll(); // ritorna tutti gli ordini
+            return getAll();
         }
 
         return orderRepository.findAll().stream()
@@ -174,8 +167,7 @@ public class OrderService {
             LocalDateTime filterDate = LocalDate.parse(dateFromStr).atStartOfDay();
             return !order.getOperationDate().isBefore(filterDate);
         } catch (DateTimeParseException e) {
-            //log.warn("Invalid date format for operationDateFrom: {}", dateFromStr);
-            return true; // Include l'ordine se la data non è valida
+            return true;
         }
     }
 
@@ -187,8 +179,8 @@ public class OrderService {
             LocalDateTime filterDate = LocalDate.parse(dateToStr).atTime(23, 59, 59);
             return !order.getOperationDate().isAfter(filterDate);
         } catch (DateTimeParseException e) {
-            //log.warn("Invalid date format for operationDateTo: {}", dateToStr);
-            return true; // Include l'ordine se la data non è valida
+
+            return true;
         }
     }
 
@@ -200,8 +192,8 @@ public class OrderService {
             LocalDateTime filterDate = LocalDate.parse(dateFromStr).atStartOfDay();
             return !order.getEvaluationDate().isBefore(filterDate);
         } catch (DateTimeParseException e) {
-            //log.warn("Invalid date format for valueDateFrom: {}", dateFromStr);
-            return true; // Include l'ordine se la data non è valida
+
+            return true;
         }
     }
 
@@ -213,8 +205,8 @@ public class OrderService {
             LocalDateTime filterDate = LocalDate.parse(dateToStr).atTime(23, 59, 59);
             return !order.getEvaluationDate().isAfter(filterDate);
         } catch (DateTimeParseException e) {
-            //log.warn("Invalid date format for valueDateTo: {}", dateToStr);
-            return true; // Include l'ordine se la data non è valida
+
+            return true;
         }
     }
 }

@@ -92,7 +92,7 @@ public class OrderController {
             return validationResponse;
         }
 
-        // Qui va la logica di inserimento dell'ordine nel DB o sistema di backend
+
         orderService.create(order);
 
         OrderValidationResponse successResponse = new OrderValidationResponse();

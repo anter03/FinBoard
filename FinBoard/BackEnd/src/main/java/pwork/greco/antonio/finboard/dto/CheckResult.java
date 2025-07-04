@@ -31,9 +31,7 @@ public class CheckResult {
         return appliedRule;
     }
 
-    /**
-     * Restituisce una descrizione del controllo applicato
-     */
+
     public String getRuleDescription() {
         if (appliedRule == null) {
             return "Nessuna regola applicata";

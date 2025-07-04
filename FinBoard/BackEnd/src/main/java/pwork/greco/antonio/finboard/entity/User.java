@@ -43,5 +43,5 @@ public class User {
     @Column(nullable = false)
     private boolean deleted = false;
 
-    // Foreign key constraint will be handled via relation in a more advanced setup (with Company entity)
+
 }

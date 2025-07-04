@@ -30,20 +30,19 @@ public class OrderCheckService {
     /**
      * Verifica se un ordine può essere eseguito in base alle regole di controllo
      * @param order L'ordine da verificare
-     * @return Lista di risultati delle verifiche, uno per ogni controllo applicabile
+     * @return Lista di risultati delle verifiche, uno per ogni controllo
      */
     public List<CheckResult> verifyOrder(OrderDto order) {
         // 1. Recupera tutte le regole applicabili al profilo dell'utente
         Long profileId = order.getUser().getProfile().getId();
         List<CheckLimit> limitToApplicate = checkLimitRepository.findByProfileId(profileId);
-        //converto in dto
 
         List<CheckLimitDto> applicableRules = new ArrayList<>();
         for (CheckLimit limit : limitToApplicate) {
             applicableRules.add(checkLimitService.toDto(limit));
         }
 
-        // 2. Filtra le regole in base alle caratteristiche dello strumento
+        // 2. Filtra le regole in base ALLO STRUMENTO
         List<CheckLimitDto> matchingRules = filterRulesByInstrument(applicableRules, order.getInstrument());
 
         // 3. Verifica ogni regola applicabile e raccogli tutti i risultati
@@ -63,7 +62,7 @@ public class OrderCheckService {
     }
 
     /**
-     * Restituisce i primi controlli falliti (utile per mostrare errori all'utente)
+     * Restituisce i primi controlli falliti
      * @param order L'ordine da verificare
      * @return Lista dei controlli falliti
      */
@@ -79,9 +78,8 @@ public class OrderCheckService {
     private List<CheckLimitDto> filterRulesByInstrument(List<CheckLimitDto> rules, InstrumentDto instrument) {
         return rules.stream()
                 .filter(rule -> matchesInstrumentType(rule, instrument))
-                .filter(rule -> matchesCountry(rule, instrument))
-                .filter(rule -> matchesRating(rule, instrument))
-                .filter(rule -> matchesActionType(rule)) // Solo BUY per ora
+                //.filter(rule -> matchesCountry(rule, instrument))
+                //.filter(rule -> matchesActionType(rule)) // Solo BUY per ora
                 .collect(Collectors.toList());
     }
 
@@ -108,9 +106,8 @@ public class OrderCheckService {
     }
 
     private boolean matchesActionType(CheckLimitDto rule) {
-        // Per ora consideriamo solo acquisti (BUY)
-        //return "BUY".equals(rule.getActionType());
-        return true;
+        return "BUY".equals(rule.getActionType());
+        //return true;
     }
 
     /**
@@ -148,8 +145,6 @@ public class OrderCheckService {
     }
 
     private CheckResult checkDailyLimit(CheckLimitDto rule, OrderDto order, BigDecimal orderAmount) {
-        // Qui dovresti calcolare l'ammontare già utilizzato oggi dall'utente
-        // Per semplicità, assumo che tu abbia un metodo per recuperarlo
         BigDecimal usedTodayAmount = calculateUsedAmountToday(order.getUser().getId());
         BigDecimal totalWithNewOrder = usedTodayAmount.add(orderAmount);
 
@@ -165,7 +160,7 @@ public class OrderCheckService {
     }
 
     private CheckResult checkTotalLimit(CheckLimitDto rule, OrderDto order, BigDecimal orderAmount) {
-        // Qui dovresti calcolare l'ammontare totale già utilizzato dall'utente
+
         BigDecimal usedTotalAmount = calculateUsedAmountTotal(order.getUser().getId());
         BigDecimal totalWithNewOrder = usedTotalAmount.add(orderAmount);
 
@@ -185,10 +180,10 @@ public class OrderCheckService {
      */
     private boolean isRatingSufficient(String instrumentRating, String requiredRating) {
         if (instrumentRating == null) {
-            return false; // Strumento senza rating non può soddisfare requisiti di rating
+            return false;
         }
 
-        // Mappa semplificata dei rating (dal migliore al peggiore)
+
         String[] ratingScale = {"AAA", "AA", "A", "BBB", "BB", "B", "CCC", "CC", "C", "D"};
 
         int instrumentRatingIndex = getRatingIndex(instrumentRating, ratingScale);
@@ -207,16 +202,14 @@ public class OrderCheckService {
         return Integer.MAX_VALUE; // Rating non riconosciuto = peggiore possibile
     }
 
-    // Metodi che dovresti implementare per calcolare gli importi utilizzati
+    // TODO: Implementa la logica per calcolare l'importo già utilizzato oggi
     private BigDecimal calculateUsedAmountToday(Long userId) {
-        // Implementa la logica per calcolare l'importo già utilizzato oggi
-        // Query al database per sommare gli ordini eseguiti oggi
+
         return BigDecimal.ZERO; // Placeholder
     }
 
+    //TODO: Implementa la logica per calcolare l'importo totale utilizzato
     private BigDecimal calculateUsedAmountTotal(Long userId) {
-        // Implementa la logica per calcolare l'importo totale utilizzato
-        // Query al database per sommare tutti gli ordini eseguiti
-        return BigDecimal.ZERO; // Placeholder
+         return BigDecimal.ZERO; // Placeholder
     }
 }

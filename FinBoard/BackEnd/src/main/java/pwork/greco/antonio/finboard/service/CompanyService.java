@@ -33,7 +33,7 @@ public class CompanyService {
 
     public CompanyDto createCompany(CompanyDto dto) {
         Company entity = toEntity(dto);
-        entity.setId(null); // previene update
+        entity.setId(null);
         if (entity.getCreatedAt() == null) {
             entity.setCreatedAt(LocalDateTime.now());
         }
@@ -59,7 +59,7 @@ public class CompanyService {
         companyRepository.save(company);
     }
 
-    // Mapping manuale
+
 
     private CompanyDto toDto(Company entity) {
         return CompanyDto.builder()

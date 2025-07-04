@@ -2,6 +2,7 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgIf } from '@angular/common';
 import { RouterModule } from '@angular/router'; // <--- Importa questo!
+import { User } from '../../models/User';
 
 
 @Component({
@@ -14,13 +15,14 @@ export class SidebarComponent implements OnInit {
   isExpanded: boolean = false;
   isPinned: boolean = false;
   isHovered: boolean = false;
+  user: User | null = null;
 
   menuItems = [
     {
       icon: 'fas fa-home',
       label: 'Dashboard',
-      route: '/dashboard',
-      active: true
+      route: '/dashboard/',
+      active: false
     },
     {
       icon: 'fas fa-chart-line',
@@ -48,10 +50,10 @@ export class SidebarComponent implements OnInit {
       badge: 3
     },
     {
-      icon: 'fas fa-cog',
-      label: 'Impostazioni',
-      route: '/settings',
-      active: false
+      icon: 'fas fa-sign-out',
+      label: 'Logout',
+      route: '/logout',
+      active: true
     }
   ];
 
@@ -64,6 +66,12 @@ export class SidebarComponent implements OnInit {
       this.isPinned = JSON.parse(savedPinnedState);
       this.isExpanded = this.isPinned;
     }
+    const userData = sessionStorage.getItem('user')
+    if (userData) {
+      const user = JSON.parse(userData);
+      this.user = user
+    }
+    console.log(this.user);
   }
 
   onMouseEnter(): void {
@@ -92,14 +100,9 @@ export class SidebarComponent implements OnInit {
   }
 
   selectMenuItem(item: any): void {
-    // Deseleziona tutti gli elementi
     this.menuItems.forEach(menuItem => menuItem.active = false);
-    // Seleziona l'elemento cliccato
     item.active = true;
-    
-    // Qui puoi aggiungere la logica di navigazione
-    // this.router.navigate([item.route]);
-  }
+   }
 
   get sidebarClass(): string {
     return `sidebar ${this.isExpanded ? 'expanded' : 'collapsed'} ${this.isPinned ? 'pinned' : ''}`;
