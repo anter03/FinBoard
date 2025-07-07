@@ -1,0 +1,103 @@
+@startuml
+title Diagramma delle Classi UML - Finboard
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+class User {
+  -id: long {PK}
+  -username: String {UK}
+  -email: String {UK}
+  -password_hash: String
+  -createdAt: DateTime
+  -deleted: boolean
+}
+
+class Profile {
+  -id: long {PK}
+  -name: String
+  -description: String
+  -deleted: boolean
+}
+
+class Company {
+  -id: long {PK}
+  -name: String {UK}
+  -createdAt: DateTime
+  -deleted: boolean
+}
+
+class Portfolio {
+  -id: long {PK}
+  -name: String
+  -createdAt: DateTime
+  -deleted: boolean
+}
+
+class Order {
+  -id: long {PK}
+  -side: String
+  -quantity: BigDecimal
+  -price: BigDecimal
+  -status: String
+  -currency: String
+  -createdAt: DateTime
+  -executedAt: DateTime
+  -operationDate: DateTime
+  -evaluationDate: DateTime
+  -deleted: boolean
+}
+
+class Instrument {
+  -id: long {PK}
+  -name: String
+  -isin: String {UK}
+  -currency: String
+  -country: String
+  -rating: String
+}
+
+class InstrumentType {
+  -id: long {PK}
+  -name: String {UK}
+}
+
+class CheckLimit {
+  -id: long {PK}
+  -actionType: String
+  -limitType: String
+  -limitValue: BigDecimal
+  -country: String
+  -rating: String
+  -description: String
+  -createdAt: DateTime
+}
+
+class CheckResultLog {
+  -id: long {PK}
+  -ruleId: long
+  -ruleDescription: String
+  -ruleText: String
+  -errorMessage: String
+  -isValid: boolean
+  -timestamp: DateTime
+}
+
+' Associazioni
+Company "1" -- "1..*" User : has
+Profile "1" -- "0..*" User : defines
+
+User "1" -- "0..*" Portfolio : owns
+Company "1" -- "0..*" Portfolio : has
+
+Portfolio "1" -- "0..*" Order : contains
+User "1" -- "0..*" Order : (operator) places
+Instrument "1" -- "0..*" Order : concerns
+
+InstrumentType "1" -- "0..*" Instrument : classifies
+
+' Associazioni da Relazioni Assunte
+Profile "1" -- "1..*" CheckLimit : applies to
+InstrumentType "1" -- "0..*" CheckLimit : applies to
+
+@enduml

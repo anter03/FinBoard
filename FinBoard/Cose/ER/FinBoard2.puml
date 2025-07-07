@@ -1,0 +1,119 @@
+@startuml
+' !theme plain
+title Schema ER del Database Finboard
+
+skinparam linetype ortho
+
+entity "user" as user {
+  *id: bigint {PK}
+  --
+  *company_id: bigint {FK}
+  *created_at: datetime2
+  *deleted: bit
+  *email: varchar(100) {UK}
+  password_hash: nvarchar(MAX)
+  *username: varchar(50) {UK}
+  profile_id: bigint {FK}
+}
+
+entity "profile" as profile {
+  *id: bigint {PK}
+  --
+  *deleted: bit
+  description: varchar(255)
+  *name: varchar(50)
+}
+
+entity "company" as company {
+  *id: bigint {PK}
+  --
+  *created_at: datetime2
+  *deleted: bit
+  *name: varchar(100) {UK}
+}
+
+entity "portfolio" as portfolio {
+  *id: bigint {PK}
+  --
+  *created_at: datetime2
+  *deleted: bit
+  *name: varchar(50)
+  company_id: bigint {FK}
+  user_id: bigint {FK}
+}
+
+entity "order" as order {
+  *id: bigint {PK}
+  --
+  *created_at: datetime2
+  *deleted: bit
+  executed_at: datetime2
+  price: numeric(18,4)
+  *quantity: numeric(18,4)
+  *side: varchar(4)
+  *status: varchar(20)
+  *instrument_id: bigint {FK}
+  *operator_id: bigint {FK}
+  *portfolio_id: bigint {FK}
+  evaluation_date: datetime2
+  operation_date: datetime2
+  *currency: varchar(255)
+}
+
+entity "instrument" as instrument {
+  *id: bigint {PK}
+  --
+  *currency: varchar(10)
+  isin: varchar(20) {UK}
+  *name: varchar(100)
+  *instrument_type_id: bigint {FK}
+  country: varchar(20)
+  rating: varchar(20)
+}
+
+entity "instrument_type" as instrument_type {
+  *id: bigint {PK}
+  --
+  *name: varchar(30) {UK}
+}
+
+entity "check_limit" as check_limit {
+  *id: bigint {PK}
+  --
+  *action_type: varchar(20)
+  country: varchar(10)
+  *created_at: datetime2
+  description: varchar(200)
+  instrument_type_id: bigint {FK}
+  *limit_type: varchar(10)
+  limit_value: numeric(18,4)
+  *profile_id: bigint {FK}
+  rating: varchar(10)
+}
+
+entity "check_result_log" as check_result_log {
+  *id: bigint {PK}
+  --
+  error_message: varchar(255)
+  rule_description: varchar(255)
+  rule_id: bigint
+  rule_text: varchar(255)
+  timestamp: datetime2
+  *valid: bit
+}
+
+' Relazioni Esplicite
+portfolio }o..|| company
+portfolio }o..|| user
+order }|..|| portfolio
+instrument }|..|| instrument_type
+order }|..|| instrument
+order }|..|| user
+
+' Relazioni Assunte
+user }|..|| company
+user }o..|| profile
+check_limit }|..|| profile
+check_limit }o..|| instrument_type
+
+@enduml
