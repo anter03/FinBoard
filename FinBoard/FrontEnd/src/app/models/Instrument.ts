@@ -5,4 +5,6 @@ export interface Instrument {
   name: string;                 // varchar(100)
   instrumentTypeId: number;     // bigint (FK a instrument_type)
   instrumentTypeDescription: string;     // bigint (FK a instrument_type)
+  country: string;
+  rating:string;
 }

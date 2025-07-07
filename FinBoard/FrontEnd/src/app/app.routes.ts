@@ -4,7 +4,7 @@ import { DashboardComponent} from './pages/dashboard/dashboard.component';
 import { OrdersManagementComponent} from './pages/orders-management/orders-management.component';
 import { MessageCenterComponent} from './pages/message-center/message-center.component';
 import { LogoutComponent } from './components/logout/logout.component';
-
+import { PortfolioReportComponent} from './pages/portfolio-report/portfolio-report.component';
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' }, // reindirizza "" → "login"
   { path: 'login', component: LoginComponent },         // pagina login
@@ -14,8 +14,8 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'ordermanagment', pathMatch: 'full' },
       { path: 'ordermanagment', component: OrdersManagementComponent },
-      { path: 'messagecenter', component: MessageCenterComponent }
-      //{ path: 'portfolio', component: PortfolioComponent },
+      { path: 'messagecenter', component: MessageCenterComponent },
+      { path: 'portfolio', component: PortfolioReportComponent }
       //{ path: 'analytics', component: AnalyticsComponent },
       //{ path: 'settings', component: SettingsComponent }
     ]

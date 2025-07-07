@@ -27,6 +27,9 @@ public class OrderCheckService {
         this.checkLimitService = checkLimitService;
     }
 
+    public static final String FORBIDDEN = "FORBIDDEN";
+    public static final String LIMIT = "LIMIT";
+
     /**
      * Verifica se un ordine può essere eseguito in base alle regole di controllo
      * @param order L'ordine da verificare
@@ -78,7 +81,7 @@ public class OrderCheckService {
     private List<CheckLimitDto> filterRulesByInstrument(List<CheckLimitDto> rules, InstrumentDto instrument) {
         return rules.stream()
                 .filter(rule -> matchesInstrumentType(rule, instrument))
-                //.filter(rule -> matchesCountry(rule, instrument))
+                .filter(rule -> matchesCountry(rule, instrument))
                 //.filter(rule -> matchesActionType(rule)) // Solo BUY per ora
                 .collect(Collectors.toList());
     }
@@ -91,8 +94,7 @@ public class OrderCheckService {
 
     private boolean matchesCountry(CheckLimitDto rule, InstrumentDto instrument) {
         // Se la regola non specifica un paese, è applicabile a tutti
-        return rule.getCountry() == null ||
-                rule.getCountry().equals(instrument.getCountry());
+        return rule.getActionType().equals(FORBIDDEN)   && (rule.getCountry() == null || rule.getCountry().equals(instrument.getCountry()));
     }
 
     private boolean matchesRating(CheckLimitDto rule, InstrumentDto instrument) {
@@ -101,8 +103,8 @@ public class OrderCheckService {
             return true;
         }
 
-        // Logica per confronto rating (assumo rating alfabetici: AAA > AA > A > BBB...)
-        return isRatingSufficient(instrument.getRating(), rule.getRating());
+        return rule.getActionType().equals(FORBIDDEN)   && rule.getCountry() != null;
+
     }
 
     private boolean matchesActionType(CheckLimitDto rule) {
@@ -115,6 +117,16 @@ public class OrderCheckService {
      */
     private CheckResult applyRule(CheckLimitDto rule, OrderDto order) {
         if ("FORBIDDEN".equals(rule.getActionType())) {
+
+            if(rule.getRating() != null){
+                boolean result = isRatingSufficient(order.getInstrument().getRating(), rule.getRating());
+                if(result)
+                    return CheckResult.success(rule);
+                else
+                    return CheckResult.failure("Rating insufficiente",rule);
+            }
+
+
             return CheckResult.failure(
                     String.format("Acquisto vietato per il profilo %d: %s",
                             rule.getProfileId(), rule.getDescription()),
@@ -190,7 +202,7 @@ public class OrderCheckService {
         int requiredRatingIndex = getRatingIndex(requiredRating, ratingScale);
 
         // Rating migliore ha indice più basso
-        return instrumentRatingIndex <= requiredRatingIndex;
+        return instrumentRatingIndex < requiredRatingIndex;
     }
 
     private int getRatingIndex(String rating, String[] ratingScale) {

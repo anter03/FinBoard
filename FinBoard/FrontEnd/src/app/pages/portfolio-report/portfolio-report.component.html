@@ -1,0 +1,163 @@
+<div class="portfolio-report-container">
+  <!-- Header -->
+  <div class="report-header">
+    <h2>📊 Report Portfolio</h2>
+    <p>Analisi dettagliata degli ordini e posizioni in portafoglio</p>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <div class="card total-orders">
+      <div class="card-icon">📋</div>
+      <div class="card-content">
+        <h3>{{orderStats.totalOrders}}</h3>
+        <p>Ordini Totali</p>
+      </div>
+    </div>
+    
+    <div class="card executed-orders">
+      <div class="card-icon">✅</div>
+      <div class="card-content">
+        <h3>{{orderStats.executedOrders}}</h3>
+        <p>Ordini Eseguiti</p>
+      </div>
+    </div>
+    
+    <div class="card pending-orders">
+      <div class="card-icon">⏳</div>
+      <div class="card-content">
+        <h3>{{orderStats.pendingOrders}}</h3>
+        <p>Ordini Pendenti</p>
+      </div>
+    </div>
+    
+    <div class="card total-value">
+      <div class="card-icon">💰</div>
+      <div class="card-content">
+        <!-- NOTA: La valuta qui è fissa a EUR. Potrebbe essere un'approssimazione se gli ordini hanno valute diverse -->
+        <h3>{{orderStats.totalValue | currency:'EUR':'symbol':'1.2-2'}}</h3>
+        <p>Valore Totale</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="charts-section">
+    <div class="chart-container">
+      <h3>Distribuzione per Portafoglio</h3>
+      <canvas baseChart
+              [data]="portfolioChartData"
+              [type]="'doughnut'"
+              [options]="chartOptions"
+              *ngIf="portfolioChartData">
+      </canvas>
+    </div>
+    
+    <div class="chart-container">
+      <h3>Ordini per Stato</h3>
+      <canvas baseChart
+              [data]="statusChartData"
+              [type]="'bar'"
+              [options]="barChartOptions"
+              *ngIf="statusChartData">
+      </canvas>
+    </div>
+
+    <div class="chart-container">
+      <h3>Distribuzione per Tipo Strumento</h3>
+      <canvas baseChart
+              [data]="instrumentTypeChartData"
+              [type]="'pie'"
+              [options]="chartOptions"
+              *ngIf="instrumentTypeChartData">
+      </canvas>
+    </div>
+  </div>
+
+  <!-- Portfolio Summary Table -->
+  <div class="table-section">
+    <h3>📈 Riepilogo per Portafoglio</h3>
+    <div class="table-wrapper">
+      <table class="portfolio-table">
+        <thead>
+          <tr>
+            <th>Portafoglio</th>
+            <th>Totale Ordini</th>
+            <th>Eseguiti</th>
+            <th>Pendenti</th>
+            <th>Valore Totale</th>
+            <th>Valuta</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let portfolio of portfolioSummary">
+            <td class="portfolio-name">{{portfolio.portfolio_name}}</td>
+            <td>{{portfolio.total_orders}}</td>
+            <td class="executed">{{portfolio.executed_orders}}</td>
+            <td class="pending">{{portfolio.pending_orders}}</td>
+            <td class="value">{{portfolio.total_value | currency:portfolio.currency:'symbol':'1.2-2'}}</td>
+            <td>{{portfolio.currency}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Instruments Summary Table -->
+  <div class="table-section">
+    <h3>🏦 Posizioni per Strumento</h3>
+    <div class="table-wrapper">
+      <table class="instruments-table">
+        <thead>
+          <tr>
+            <th>Strumento</th>
+            <th>Tipo</th>
+            <th>ISIN</th>
+            <th>Quantità</th>
+            <th>Valore</th>
+            <!-- MODIFICATO -->
+            <th>Paese</th>
+            <th>Rating</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let instrument of instrumentSummary">
+            <td class="instrument-name">{{instrument.instrument_name}}</td>
+            <td>
+              <span class="instrument-type-badge">{{instrument.instrument_type}}</span>
+            </td>
+            <td class="isin">{{instrument.isin}}</td>
+            <td>{{instrument.total_quantity | number:'1.0-4'}}</td>
+            <td class="value">{{instrument.total_value | currency:instrument.currency:'symbol':'1.2-2'}}</td>
+            <!-- MODIFICATO: da instrument.c a instrument.country per coerenza -->
+            <td>
+              <span class="country-badge">{{instrument.country}}</span>
+            </td>
+            <!-- MODIFICATO: Corretta la chiamata al metodo e la visualizzazione -->
+            <td>
+              <span class="rating-badge" [ngClass]="getRatingClass(instrument.rating)">{{instrument.rating}}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Country Distribution Chart (ORA FUNZIONANTE) -->
+  <div class="chart-full-width">
+    <h3>Distribuzione Geografica</h3>
+    <canvas baseChart
+            [data]="countryChartData"
+            [type]="'polarArea'"
+            [options]="chartOptions"
+            *ngIf="countryChartData && countryChartData.datasets[0].data.length > 0">
+    </canvas>
+  </div>
+
+  <!-- No Data Message -->
+  <div class="no-data-message" *ngIf="!orders || orders.length === 0">
+    <div class="no-data-icon">📈</div>
+    <h3>Nessun ordine trovato</h3>
+    <p>Non sono presenti ordini da visualizzare nel report</p>
+  </div>
+</div>
