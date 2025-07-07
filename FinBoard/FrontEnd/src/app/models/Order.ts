@@ -21,7 +21,7 @@ export interface Order {
   createdAt: string;
   deleted: boolean;
   executedAt?: string | null;
-  price?: number | null;
+  price: number;
   quantity: number;
   side: string;
   status: string;

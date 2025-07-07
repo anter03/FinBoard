@@ -30,6 +30,7 @@ export class OrderFormComponent implements OnInit {
   public instrumentDescription: string | undefined;
   validationResponse: OrderValidationResponse | null = null;
   isValidating = false;
+  user: User | null = null;
   // Inputs
   @Input() order: Order | null = null;
   @Input() isEditMode: boolean = false;
@@ -102,6 +103,13 @@ export class OrderFormComponent implements OnInit {
 
 
   ngOnInit(): void {
+     const userData = sessionStorage.getItem('user')
+    if (userData) {
+      const user = JSON.parse(userData);
+      this.user = user
+    }
+
+
     // Se siamo in modalità edit/view e abbiamo un ordine, popoliamo il form
     console.log(this.order);
     if ((this.isEditMode || this.isViewMode) && this.order) {
@@ -315,7 +323,7 @@ validateOrder(): void {
 
   // Costruzione oggetti relazionati
   const selectedInstrument = this.instruments.find(i => i.isin === formData.isin);
-  const selectedUser = this.operators.find(o => o.id === 2); // Hardcoded
+  const selectedUser = this.operators.find(o => o.id === this.user?.id); 
   const selectedPortfolio = this.portfolios.find(p => p.id === +formData.portfolioId);
 
   // Costruzione ordine anche in view mode

@@ -33,8 +33,8 @@ export class SidebarComponent implements OnInit {
     {
       icon: 'fas fa-wallet',
       label: 'Portfolio',
-      route: '/portfolio',
-      active: false
+      route: '/dashboard/portfolio',
+      active: true
     },
     {
       icon: 'fas fa-exchange-alt',
