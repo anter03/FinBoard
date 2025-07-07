@@ -1,7 +1,7 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgIf } from '@angular/common';
-import { RouterModule } from '@angular/router'; // <--- Importa questo!
+import { RouterModule } from '@angular/router'; 
 import { User } from '../../models/User';
 
 

@@ -82,7 +82,14 @@
               {{ getErrorMessage('isin') }}
             </div>
           </div>
-       
+          
+       <div class="form-group">
+         <label for="isinDescription">Descrizione</label>
+         <label id="isinDescription" class="form-control">
+            {{ this.instrumentDescription || 'N/A' }}
+        </label>
+       </div>
+
         </div>
 
         <div class="form-row-triple">

@@ -27,6 +27,7 @@ export class OrderFormComponent implements OnInit {
   private orderService = inject(OrderService);
   private userService = inject(UserService);
   private instrumentService = inject(InstrumentService);
+  public instrumentDescription: string | undefined;
   validationResponse: OrderValidationResponse | null = null;
   isValidating = false;
   // Inputs
@@ -57,6 +58,7 @@ export class OrderFormComponent implements OnInit {
       operators: User[];
     }
   ) {
+    
     // Inizializza le liste dai dati passati
     if (this.data) {
       this.order = this.data.order;
@@ -117,12 +119,27 @@ export class OrderFormComponent implements OnInit {
         operationDate: this.order.operationDate ? this.formatDateForInput(this.order.operationDate) : '',
         evaluationDate: this.order.evaluationDate ? this.formatDateForInput(this.order.evaluationDate) : ''
       });
+      this.instrumentDescription = this.order.instrument?.name;
     }
 
     // Se è in modalità visualizzazione, disabilita tutti i campi
     if (this.isViewMode) {
       this.orderForm.disable();
     }
+    
+
+    this.orderForm.get('isin')?.valueChanges.subscribe((isin: string) => {
+       let descripition  =  this.instruments.find(f => f.isin === isin)?.name;
+      if(descripition != null)
+      {
+        this.instrumentDescription = descripition;
+      }
+      else
+      {
+        this.instrumentDescription = "Anagrafica stumento non censita";
+      }
+      
+    });
   }
 
   /**
