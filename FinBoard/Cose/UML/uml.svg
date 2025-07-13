@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-317.33 -245.812 1232.854 813.308">
+  <text x="220.31" y="-196.4" class="system-title" style="white-space: pre; font-family: Arial, sans-serif; font-weight: 700; perspective-origin: 255px 11.9875px; text-anchor: middle; stroke-width: 1; font-size: 16px;">Sistema Gestione Ordini Finanziari</text>
+  <rect x="-129.69" y="-176.4" width="700" height="700" class="system-boundary" rx="10" style="fill: none; stroke: rgb(44, 62, 80); stroke-dasharray: 5px, 5px; stroke-width: 2;"/>
+  <g id="authenticated-user" transform="matrix(1, 0, 0, 1, -279.689701, -226.400119)">
+    <circle cx="80" cy="350" r="15" class="actor" style="fill: none; stroke: rgb(52, 73, 94); stroke-width: 2px;"/>
+    <line x1="80" y1="365" x2="80" y2="430" class="actor" style="fill: none; stroke: rgb(52, 73, 94); stroke-width: 2px;"/>
+    <line x1="60" y1="390" x2="100" y2="390" class="actor" style="fill: none; stroke: rgb(52, 73, 94); stroke-width: 2px;"/>
+    <line x1="80" y1="430" x2="65" y2="470" class="actor" style="fill: none; stroke: rgb(52, 73, 94); stroke-width: 2px;"/>
+    <line x1="80" y1="430" x2="95" y2="470" class="actor" style="fill: none; stroke: rgb(52, 73, 94); stroke-width: 2px;"/>
+    <text x="80" y="490" class="actor-text" style="white-space: pre; font-family: Arial, sans-serif; font-size: 12px; font-weight: 700; line-height: 19.2px; perspective-origin: 47px 196px; text-anchor: middle;">Utente Autenticato</text>
+    <text x="80" y="505" class="actor-text" style="white-space: pre; font-family: Arial, sans-serif; font-size: 12px; font-weight: 700; line-height: 19.2px; perspective-origin: 47px 201.988px; text-anchor: middle;">(Junior/Senior/...)</text>
+  </g>
+  <g id="validation-system" transform="matrix(1, 0, 0, 1, -279.689701, -226.400119)">
+    <circle cx="920" cy="300" r="15" class="actor" style="fill: none; stroke: rgb(52, 73, 94); stroke-width: 2px;"/>
+    <line x1="920" y1="315" x2="920" y2="380" class="actor" style="fill: none; stroke: rgb(52, 73, 94); stroke-width: 2px;"/>
+    <line x1="900" y1="340" x2="940" y2="340" class="actor" style="fill: none; stroke: rgb(52, 73, 94); stroke-width: 2px;"/>
+    <line x1="920" y1="380" x2="905" y2="420" class="actor" style="fill: none; stroke: rgb(52, 73, 94); stroke-width: 2px;"/>
+    <line x1="920" y1="380" x2="935" y2="420" class="actor" style="fill: none; stroke: rgb(52, 73, 94); stroke-width: 2px;"/>
+    <text x="920" y="440" class="actor-text" style="white-space: pre; font-family: Arial, sans-serif; font-size: 12px; font-weight: 700; line-height: 19.2px; perspective-origin: 378px 176px; text-anchor: middle;">Sistema di</text>
+    <text x="920" y="455" class="actor-text" style="white-space: pre; font-family: Arial, sans-serif; font-size: 12px; font-weight: 700; line-height: 19.2px; perspective-origin: 378px 181.988px; text-anchor: middle;">Validazione</text>
+  </g>
+  <ellipse cx="20.31" cy="-126.4" rx="60" ry="25" class="use-case" style="fill: rgb(236, 240, 241); stroke: rgb(44, 62, 80); stroke-width: 2;"/>
+  <text x="20.31" y="-121.4" class="use-case-text" style="white-space: pre; font-family: Arial, sans-serif; font-size: 12px; line-height: 19.2px; perspective-origin: 125px 41.9875px; text-anchor: middle; stroke-width: 1;">Login</text>
+  <ellipse cx="120.31" cy="23.6" rx="70" ry="25" class="use-case" style="fill: rgb(236, 240, 241); stroke: rgb(44, 62, 80); stroke-width: 2;"/>
+  <text x="120.31" y="28.6" class="use-case-text" style="white-space: pre; font-family: Arial, sans-serif; font-size: 12px; line-height: 19.2px; perspective-origin: 172.5px 102px; text-anchor: middle; stroke-width: 1;">Creare Ordine</text>
+  <ellipse cx="370.31" cy="53.6" rx="90" ry="25" class="use-case" style="fill: rgb(236, 240, 241); stroke: rgb(44, 62, 80); stroke-width: 2;"/>
+  <text x="370.31" y="53.6" class="use-case-text" style="white-space: pre; font-family: Arial, sans-serif; font-size: 12px; line-height: 19.2px; perspective-origin: 272.5px 112px; text-anchor: middle; stroke-width: 1;">Validare Ordine</text>
+  <text x="370.31" y="68.6" class="use-case-text" style="white-space: pre; font-family: Arial, sans-serif; font-size: 12px; line-height: 19.2px; perspective-origin: 270px 118px; text-anchor: middle; stroke-width: 1;">Pre-Acquisto</text>
+  <ellipse cx="170.31" cy="123.6" rx="70" ry="25" class="use-case" style="fill: rgb(236, 240, 241); stroke: rgb(44, 62, 80); stroke-width: 2;"/>
+  <text x="170.31" y="128.6" class="use-case-text" style="white-space: pre; font-family: Arial, sans-serif; font-size: 12px; line-height: 19.2px; perspective-origin: 192.5px 142px; text-anchor: middle; stroke-width: 1;">Eseguire Ordine</text>
+  <ellipse cx="9.866" cy="262.177" rx="90" ry="25" class="use-case" style="fill: rgb(236, 240, 241); stroke: rgb(44, 62, 80); stroke-width: 2;"/>
+  <text x="15.911" y="265.199" class="use-case-text" style="white-space: pre; font-family: Arial, sans-serif; font-size: 12px; line-height: 19.2px; perspective-origin: 157.5px 164px; text-anchor: middle; stroke-width: 1;">Visualizzare Reportistica</text>
+  <ellipse cx="270.31" cy="273.6" rx="95" ry="25" class="use-case" style="fill: rgb(236, 240, 241); stroke: rgb(44, 62, 80); stroke-width: 2;"/>
+  <text x="270.31" y="278.6" class="use-case-text" style="white-space: pre; font-family: Arial, sans-serif; font-size: 12px; line-height: 19.2px; perspective-origin: 240px 201.988px; text-anchor: middle; stroke-width: 1;">Visualizzare Log Validazioni</text>
+  <ellipse cx="364.903" cy="152.593" rx="80" ry="25" class="use-case" style="fill: rgb(236, 240, 241); stroke: rgb(44, 62, 80); stroke-width: 2;"/>
+  <text x="374.977" y="154.57" class="use-case-text" style="white-space: pre; font-family: Arial, sans-serif; font-size: 12px; line-height: 19.2px; perspective-origin: 292.5px 154px; text-anchor: middle; stroke-width: 1;">Controllare Limiti</text>
+  <ellipse cx="470.31" cy="253.6" rx="95" ry="25" class="use-case" style="fill: rgb(236, 240, 241); stroke: rgb(44, 62, 80); stroke-width: 2;"/>
+  <text x="470.31" y="258.6" class="use-case-text" style="white-space: pre; font-family: Arial, sans-serif; font-size: 12px; line-height: 19.2px; perspective-origin: 325px 194px; text-anchor: middle; stroke-width: 1;">Registrare Risultato Validazione</text>
+  <line x1="-179.69" y1="113.6" x2="-29.69" y2="-111.4" class="relationship" style="fill: none; stroke: rgb(52, 73, 94); stroke-width: 2;"/>
+  <line x1="-179.69" y1="133.6" x2="60.31" y2="18.6" class="relationship" style="fill: none; stroke: rgb(52, 73, 94); stroke-width: 2;"/>
+  <line x1="-201.85" y1="192.666" x2="-6.742" y2="221.659" class="relationship" style="fill: none; stroke: rgb(52, 73, 94); stroke-width: 2; transform-box: fill-box; transform-origin: 50% 50%;" transform="matrix(0.984525, 0.175243, -0.175243, 0.984525, -0.000007, 0)"/>
+  <line x1="-179.69" y1="153.6" x2="190.31" y2="263.6" class="relationship" style="fill: none; stroke: rgb(52, 73, 94); stroke-width: 2;"/>
+  <line x1="620.31" y1="73.6" x2="450.31" y2="58.6" class="relationship" style="fill: none; stroke: rgb(52, 73, 94); stroke-width: 2;"/>
+  <line x1="623.367" y1="96.763" x2="469.13" y2="151.41" class="relationship" style="fill: none; stroke: rgb(52, 73, 94); stroke-width: 2; transform-box: fill-box; transform-origin: 56.4935% 48.4849%;" transform="matrix(0.999621, -0.027516, 0.027516, 0.999621, -0.068916, -0.220397)"/>
+  <line x1="630.31" y1="123.6" x2="550.31" y2="238.6" class="relationship" style="fill: none; stroke: rgb(52, 73, 94); stroke-width: 2;"/>
+  <line x1="180.31" y1="33.6" x2="300.31" y2="48.6" class="include" style="fill: none; stroke: rgb(231, 76, 60); stroke-dasharray: 5px, 5px; stroke-width: 2;"/>
+  <text x="240.31" y="38.6" class="relationship-label" style="white-space: pre; font-family: Arial, sans-serif; font-size: 10px; font-style: italic; line-height: 16px; perspective-origin: 218px 106px; text-anchor: middle; stroke-width: 1;">&lt;&lt;include&gt;&gt;</text>
+  <line x1="348.336" y1="77.775" x2="368.336" y2="127.775" class="include" style="fill: none; stroke: rgb(231, 76, 60); stroke-dasharray: 5px, 5px; stroke-width: 2; transform-box: fill-box; transform-origin: 12.6901% 65.7533%;" transform="matrix(0.908165, 0.418613, -0.418613, 0.908165, 0.000006, 0.000004)"/>
+  <text x="393.147" y="106.622" class="relationship-label" style="white-space: pre; font-family: Arial, sans-serif; font-size: 10px; font-style: italic; line-height: 16px; perspective-origin: 288px 132px; text-anchor: middle; stroke-width: 1;">&lt;&lt;include&gt;&gt;</text>
+  <line x1="445.421" y1="74.607" x2="475.421" y2="229.607" class="include" style="fill: none; stroke: rgb(231, 76, 60); stroke-dasharray: 5px, 5px; stroke-width: 2;"/>
+  <text x="479.524" y="125.43" class="relationship-label" style="white-space: pre; font-family: Arial, sans-serif; font-size: 10px; font-style: italic; line-height: 16px; perspective-origin: 302px 150px; text-anchor: middle; stroke-width: 1;">&lt;&lt;include&gt;&gt;</text>
+  <line x1="300.31" y1="68.6" x2="220.31" y2="113.6" class="extend" style="fill: none; stroke: rgb(39, 174, 96); stroke-dasharray: 3px, 3px; stroke-width: 2;"/>
+  <text x="260.31" y="93.6" class="relationship-label" style="white-space: pre; font-family: Arial, sans-serif; font-size: 10px; font-style: italic; line-height: 16px; perspective-origin: 226px 127.988px; text-anchor: middle; stroke-width: 1;">&lt;&lt;extend&gt;&gt;</text>
+  <text x="260.31" y="108.6" class="relationship-label" style="white-space: pre; font-family: Arial, sans-serif; font-size: 10px; font-style: italic; line-height: 16px; perspective-origin: 228.5px 134px; text-anchor: middle; stroke-width: 1;">[validazione OK]</text>
+  <rect x="20.31" y="323.6" width="320" height="120" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1" rx="5" style="stroke-width: 1;"/>
+  <text x="40.31" y="343.6" class="use-case-text" style="font-weight: bold; white-space: pre; font-family: Arial, sans-serif; font-size: 12px; line-height: 19.2px; perspective-origin: 132.988px 228px; text-anchor: middle; stroke-width: 1;">Note:</text>
+  <text x="190.31" y="363.6" class="use-case-text" style="white-space: pre; font-family: Arial, sans-serif; font-size: 12px; line-height: 19.2px; perspective-origin: 215.5px 236px; text-anchor: middle; stroke-width: 1;">• Ordini validati → stato "ESEGUITO"</text>
+  <text x="190.31" y="383.6" class="use-case-text" style="white-space: pre; font-family: Arial, sans-serif; font-size: 12px; line-height: 19.2px; perspective-origin: 215.5px 244px; text-anchor: middle; stroke-width: 1;">• Ordini non validati → stato "BOZZA"</text>
+  <text x="190.31" y="403.6" class="use-case-text" style="white-space: pre; font-family: Arial, sans-serif; font-size: 12px; line-height: 19.2px; perspective-origin: 218px 252px; text-anchor: middle; stroke-width: 1;">• Controlli differenziati per profilo utente</text>
+  <text x="190.31" y="423.6" class="use-case-text" style="white-space: pre; font-family: Arial, sans-serif; font-size: 12px; line-height: 19.2px; perspective-origin: 202.988px 260px; text-anchor: middle; stroke-width: 1;">  (Junior/Senior/...)</text>
+</svg>
